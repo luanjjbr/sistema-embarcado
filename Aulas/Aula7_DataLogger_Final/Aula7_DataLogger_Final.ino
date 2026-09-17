@@ -405,7 +405,8 @@ void loop()
         // Salva o CRC-16 no último slot da amostra
         i16_adcData[u16_offsetAmostra + NUM_ADC_CHANNELS] = (int16_t)u16_crcCalculado;
 
-        // Exibe na tela (Serial Monitor) todas as entradas em milivolts (mV)
+        // [OPCIONAL] Descomente o bloco abaixo caso queira exibir cada leitura individual em tempo real na tela:
+        /*
         Serial.print(F("AQ#"));
         if (u16_indiceAmostra < 9) Serial.print(F("0"));
         Serial.print(u16_indiceAmostra + 1);
@@ -429,6 +430,7 @@ void loop()
         if (u16_crcCalculado < 0x1000) Serial.print(F("0"));
         Serial.print(u16_crcCalculado, HEX);
         Serial.println();
+        */
 
         // Avança circularmente o índice de amostras
         u16_indiceAmostra = (u16_indiceAmostra + 1) % u16_totalAmostras;
