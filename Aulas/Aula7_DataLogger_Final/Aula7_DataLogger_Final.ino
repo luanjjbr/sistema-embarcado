@@ -64,14 +64,15 @@
 #include <stdlib.h> // malloc(), free()
 #include <string.h> // memset()
 
-// --- Configurações de Hardware e Amostragem ---
-#define NUM_ADC_CHANNELS        6      // Arduino Uno: A0 a A5
-#define CRC_SLOT_SIZE           1      // 1 slot de int16_t (2 bytes) para o CRC-16
+// --- Configurações de Hardware e Amostragem Dinâmicas ---
+const uint8_t  MAX_ADC_CHANNELS        = 6;    // Limite físico de canais analógicos no Arduino Uno (A0 a A5)
+uint8_t        u8_numCanais            = 6;    // Quantidade de canais ativos (configurável via UART: C<n>)
+#define        CRC_SLOT_SIZE           1       // 1 slot de int16_t (2 bytes) para o CRC-16
 
-// Temporizações padrão (em milissegundos)
-static const unsigned long TEMPO_AQUISICAO_MS = 250;  // Aquisição a cada 250 ms (4 Hz)
-static const unsigned long TEMPO_ENVIO_MS     = 5000; // Envio UART a cada 5000 ms (5 s)
-static const unsigned long TEMPO_VDD_MS       = 1000; // Calibração do VDD a cada 1 s
+// Temporizações configuráveis (em milissegundos)
+unsigned long  ul_tempoAquisicao_ms    = 250;  // Aquisição a cada 250 ms (configurável via 'TA<ms>')
+unsigned long  ul_tempoEnvio_ms        = 5000; // Envio UART a cada 5000 ms (configurável via 'TU<ms>')
+static const unsigned long TEMPO_VDD_MS = 1000;// Calibração do VDD a cada 1 s
 
 // --- Variáveis Globais de Controle ---
 int16_t  *i16_adcData = NULL;          // Ponteiro para o buffer dinâmico contínuo
@@ -91,6 +92,7 @@ int16_t  i16_readBandGap();
 int16_t  i16_calcVDD();
 int16_t  i16_convertADC(int16_t i16_raw);
 uint16_t crc16_modbus(const uint8_t *pData, size_t length);
+void     liberarBuffer();
 void     alocarBufferContinuo();
 void     transmitirLoteUART();
 void     processarComandosUART();
@@ -122,14 +124,25 @@ uint16_t crc16_modbus(const uint8_t *pData, size_t length)
 // ============================================================
 // Gestão de Memória: Alocação Contínua sem Fragmentação
 // ============================================================
+void liberarBuffer()
+{
+    if (i16_adcData != NULL)
+    {
+        free(i16_adcData);
+        i16_adcData = NULL;
+    }
+}
+
 void alocarBufferContinuo()
 {
-    u16_elementosPorAmostra = NUM_ADC_CHANNELS + CRC_SLOT_SIZE;
+    liberarBuffer();
+
+    u16_elementosPorAmostra = u8_numCanais + CRC_SLOT_SIZE;
     
     // Calcula o número de amostras por lote
-    if (TEMPO_AQUISICAO_MS > 0 && TEMPO_ENVIO_MS >= TEMPO_AQUISICAO_MS)
+    if (ul_tempoAquisicao_ms > 0 && ul_tempoEnvio_ms >= ul_tempoAquisicao_ms)
     {
-        u16_totalAmostras = (uint16_t)(TEMPO_ENVIO_MS / TEMPO_AQUISICAO_MS);
+        u16_totalAmostras = (uint16_t)(ul_tempoEnvio_ms / ul_tempoAquisicao_ms);
     }
     else
     {
@@ -145,24 +158,24 @@ void alocarBufferContinuo()
     if (i16_adcData == NULL)
     {
         Serial.println(F("[ERRO] Memoria insuficiente no malloc()!"));
-        while (1)
-        {
-            // Pisca rápido o LED indicando falha de hardware/memória
-            digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-            delay(100);
-        }
+        return;
     }
 
     // Limpa toda a área alocada (reseta para 0)
     memset(i16_adcData, 0, tamanhoTotalBytes);
+    u16_indiceAmostra = 0;
 
-    Serial.print(F("[INFO] malloc() alocou com sucesso "));
+    Serial.print(F("[INFO] Buffer de memoria alocado: "));
     Serial.print(tamanhoTotalBytes);
     Serial.print(F(" bytes ("));
     Serial.print(u16_totalAmostras);
     Serial.print(F(" amostras x "));
     Serial.print(u16_elementosPorAmostra);
-    Serial.println(F(" words)."));
+    Serial.print(F(" words). Canais: "));
+    Serial.print(u8_numCanais);
+    Serial.print(F(" | Tempo UART: "));
+    Serial.print(ul_tempoEnvio_ms);
+    Serial.println(F(" ms."));
 }
 
 // ============================================================
@@ -222,8 +235,22 @@ void transmitirLoteUART()
     Serial.println(F("\n================ RELATORIO DE TELEMETRIA (TODAS AS ENTRADAS EM mV) ================"));
     Serial.print(F("Tensão VDD do Sistema: "));
     Serial.print(i16_VDDGlobal);
-    Serial.println(F(" mV (Calibrada via Bandgap 1.1V)"));
-    Serial.println(F("Indice |    A0    |    A1    |    A2    |    A3    |    A4    |    A5    |  CRC-16  | Status"));
+    Serial.print(F(" mV | Canais Ativos: "));
+    Serial.print(u8_numCanais);
+    Serial.print(F(" | Amostras: "));
+    Serial.print(u16_totalAmostras);
+    Serial.print(F(" | Intervalo UART: "));
+    Serial.print(ul_tempoEnvio_ms);
+    Serial.println(F(" ms"));
+
+    Serial.print(F("Indice | "));
+    for (uint8_t ch = 0; ch < u8_numCanais; ch++)
+    {
+        Serial.print(F("   A"));
+        Serial.print(ch);
+        Serial.print(F("    | "));
+    }
+    Serial.println(F(" CRC-16  | Status"));
     Serial.println(F("-----------------------------------------------------------------------------------"));
 
     for (uint16_t i = 0; i < u16_totalAmostras; i++)
@@ -236,7 +263,7 @@ void transmitirLoteUART()
         Serial.print(F("]   | "));
 
         // Imprime todas as entradas convertidas estritamente em milivolts (mV)
-        for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
+        for (uint8_t ch = 0; ch < u8_numCanais; ch++)
         {
             int16_t canal_mV = i16_adcData[u16_offsetAmostra + ch];
             if (canal_mV < 1000) Serial.print(F(" "));
@@ -247,12 +274,12 @@ void transmitirLoteUART()
         }
 
         // Lê e imprime o CRC-16 armazenado no último slot da amostra
-        uint16_t u16_crcArmazenado = (uint16_t) i16_adcData[u16_offsetAmostra + NUM_ADC_CHANNELS];
+        uint16_t u16_crcArmazenado = (uint16_t) i16_adcData[u16_offsetAmostra + u8_numCanais];
         
         // Recalcula o CRC dos dados para validação em tempo real
         uint16_t u16_crcVerificacao = crc16_modbus(
             (const uint8_t *)&i16_adcData[u16_offsetAmostra],
-            sizeof(int16_t) * NUM_ADC_CHANNELS
+            sizeof(int16_t) * u8_numCanais
         );
 
         Serial.print(F("0x"));
@@ -284,17 +311,95 @@ void processarComandosUART()
         if (cmd.equalsIgnoreCase("help"))
         {
             Serial.println(F("\n--- Comandos Disponiveis ---"));
-            Serial.println(F("read   - Exibe a leitura instantanea de todas as entradas em mV"));
-            Serial.println(F("send   - Dispara imediatamente o envio do lote de amostras em mV"));
-            Serial.println(F("vdd    - Exibe a calibracao atual da fonte VDD (Bandgap) em mV"));
-            Serial.println(F("reset  - Zera o buffer de amostras e reinicia o indice"));
-            Serial.println(F("help   - Exibe esta mensagem de ajuda"));
+            Serial.println(F("C<n>       - Altera o numero de entradas ativas (ex: C4 para 4 entradas: A0 a A3)"));
+            Serial.println(F("TU<ms>     - Altera o tempo de envio UART em ms (ex: TU3000 para envio a cada 3s)"));
+            Serial.println(F("TA<ms>     - Altera o tempo de amostragem em ms (ex: TA500 para amostrar a cada 500ms)"));
+            Serial.println(F("<c>,<tu>   - Altera canais e tempo UART juntos (ex: 4,3000 para 4 entradas a cada 3s)"));
+            Serial.println(F("read       - Exibe a leitura instantanea de todas as entradas em mV"));
+            Serial.println(F("send       - Dispara imediatamente o envio do lote de amostras em mV"));
+            Serial.println(F("vdd        - Exibe a calibracao atual da fonte VDD (Bandgap) em mV"));
+            Serial.println(F("reset      - Zera o buffer de amostras e reinicia o indice"));
+            Serial.println(F("help       - Exibe esta mensagem de ajuda"));
             Serial.println(F("----------------------------"));
+        }
+        // Comando C<n> (ex: C4 ou c4)
+        else if (cmd.startsWith("C") || cmd.startsWith("c"))
+        {
+            int n = cmd.substring(1).toInt();
+            if (n >= 1 && n <= MAX_ADC_CHANNELS)
+            {
+                u8_numCanais = (uint8_t)n;
+                alocarBufferContinuo();
+                Serial.print(F(">> Numero de entradas alterado para: "));
+                Serial.println(u8_numCanais);
+            }
+            else
+            {
+                Serial.print(F(">> Erro: O numero de entradas deve ser entre 1 e "));
+                Serial.println(MAX_ADC_CHANNELS);
+            }
+        }
+        // Comando TU<ms> (ex: TU3000)
+        else if (cmd.startsWith("TU") || cmd.startsWith("tu"))
+        {
+            unsigned long tu = cmd.substring(2).toInt();
+            if (tu >= ul_tempoAquisicao_ms)
+            {
+                ul_tempoEnvio_ms = tu;
+                alocarBufferContinuo();
+                Serial.print(F(">> Tempo de envio UART alterado para: "));
+                Serial.print(ul_tempoEnvio_ms);
+                Serial.println(F(" ms"));
+            }
+            else
+            {
+                Serial.println(F(">> Erro: Tempo UART deve ser maior ou igual ao tempo de aquisicao."));
+            }
+        }
+        // Comando TA<ms> (ex: TA500)
+        else if (cmd.startsWith("TA") || cmd.startsWith("ta"))
+        {
+            unsigned long ta = cmd.substring(2).toInt();
+            if (ta >= 50 && ta <= ul_tempoEnvio_ms)
+            {
+                ul_tempoAquisicao_ms = ta;
+                alocarBufferContinuo();
+                Serial.print(F(">> Tempo de aquisicao alterado para: "));
+                Serial.print(ul_tempoAquisicao_ms);
+                Serial.println(F(" ms"));
+            }
+            else
+            {
+                Serial.println(F(">> Erro: Tempo de aquisicao invalido (min 50 ms)."));
+            }
+        }
+        // Comando combinado no formato CSV: <canais>,<tempo_uart> (ex: 4,3000)
+        else if (cmd.indexOf(',') > 0)
+        {
+            int idxVirgula = cmd.indexOf(',');
+            int canais = cmd.substring(0, idxVirgula).toInt();
+            unsigned long tu = cmd.substring(idxVirgula + 1).toInt();
+
+            if (canais >= 1 && canais <= MAX_ADC_CHANNELS && tu >= ul_tempoAquisicao_ms)
+            {
+                u8_numCanais = (uint8_t)canais;
+                ul_tempoEnvio_ms = tu;
+                alocarBufferContinuo();
+                Serial.print(F(">> Atualizacao combinada: "));
+                Serial.print(u8_numCanais);
+                Serial.print(F(" entradas ativas | Tempo UART: "));
+                Serial.print(ul_tempoEnvio_ms);
+                Serial.println(F(" ms."));
+            }
+            else
+            {
+                Serial.println(F(">> Formato invalido ou valores fora dos limites. Use: <canais>,<tempo_uart> (ex: 4,3000)"));
+            }
         }
         else if (cmd.equalsIgnoreCase("read"))
         {
             Serial.print(F(">> Leituras Instantaneas (mV): "));
-            for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
+            for (uint8_t ch = 0; ch < u8_numCanais; ch++)
             {
                 int16_t raw = analogRead(A0 + ch);
                 Serial.print(F("A"));
@@ -302,7 +407,7 @@ void processarComandosUART()
                 Serial.print(F(": "));
                 Serial.print(i16_convertADC(raw));
                 Serial.print(F(" mV"));
-                if (ch < NUM_ADC_CHANNELS - 1) Serial.print(F(" | "));
+                if (ch < u8_numCanais - 1) Serial.print(F(" | "));
             }
             Serial.println();
         }
@@ -378,8 +483,8 @@ void loop()
         i16_VDDGlobal = i16_calcVDD();
     }
 
-    // 3. Aquisição periódica de canais ADC a cada 250 ms (4 Hz)
-    if (ul_tempoAtual - ul_timerADCAQ >= TEMPO_AQUISICAO_MS)
+    // 3. Aquisição periódica de canais ADC (taxa configurável: ul_tempoAquisicao_ms)
+    if (ul_tempoAtual - ul_timerADCAQ >= ul_tempoAquisicao_ms)
     {
         ul_timerADCAQ = ul_tempoAtual;
 
@@ -389,8 +494,8 @@ void loop()
         // Calcula o offset no buffer para a amostra atual
         uint16_t u16_offsetAmostra = u16_indiceAmostra * u16_elementosPorAmostra;
 
-        // Leitura e conversão dos canais analógicos A0 a A5 em mV
-        for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
+        // Leitura e conversão dos canais analógicos ativos em mV
+        for (uint8_t ch = 0; ch < u8_numCanais; ch++)
         {
             int16_t i16_raw = analogRead(A0 + ch);
             i16_adcData[u16_offsetAmostra + ch] = i16_convertADC(i16_raw);
@@ -399,11 +504,11 @@ void loop()
         // Calcula o CRC-16 cobrindo exclusivamente os canais analógicos desta amostra
         uint16_t u16_crcCalculado = crc16_modbus(
             (const uint8_t *)&i16_adcData[u16_offsetAmostra],
-            sizeof(int16_t) * NUM_ADC_CHANNELS
+            sizeof(int16_t) * u8_numCanais
         );
 
         // Salva o CRC-16 no último slot da amostra
-        i16_adcData[u16_offsetAmostra + NUM_ADC_CHANNELS] = (int16_t)u16_crcCalculado;
+        i16_adcData[u16_offsetAmostra + u8_numCanais] = (int16_t)u16_crcCalculado;
 
         // [OPCIONAL] Descomente o bloco abaixo caso queira exibir cada leitura individual em tempo real na tela:
         /*
@@ -414,14 +519,14 @@ void loop()
         Serial.print(u16_totalAmostras);
         Serial.print(F(" | "));
 
-        for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
+        for (uint8_t ch = 0; ch < u8_numCanais; ch++)
         {
             Serial.print(F("A"));
             Serial.print(ch);
             Serial.print(F(": "));
             Serial.print(i16_adcData[u16_offsetAmostra + ch]);
             Serial.print(F(" mV"));
-            if (ch < NUM_ADC_CHANNELS - 1)
+            if (ch < u8_numCanais - 1)
             {
                 Serial.print(F(" | "));
             }
@@ -436,8 +541,8 @@ void loop()
         u16_indiceAmostra = (u16_indiceAmostra + 1) % u16_totalAmostras;
     }
 
-    // 4. Transmissão periódica de dados via UART a cada 5000 ms (5 s)
-    if (ul_tempoAtual - ul_timerAQSEND >= TEMPO_ENVIO_MS)
+    // 4. Transmissão periódica de dados via UART (intervalo configurável: ul_tempoEnvio_ms)
+    if (ul_tempoAtual - ul_timerAQSEND >= ul_tempoEnvio_ms)
     {
         ul_timerAQSEND = ul_tempoAtual;
         transmitirLoteUART();
