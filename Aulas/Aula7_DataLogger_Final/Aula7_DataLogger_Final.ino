@@ -314,12 +314,13 @@ void processarComandosUART()
             Serial.println(F("C<n>       - Altera o numero de entradas ativas (ex: C4 para 4 entradas: A0 a A3)"));
             Serial.println(F("TU<ms>     - Altera o tempo de envio UART em ms (ex: TU3000 para envio a cada 3s)"));
             Serial.println(F("TA<ms>     - Altera o tempo de amostragem em ms (ex: TA500 para amostrar a cada 500ms)"));
-            Serial.println(F("<c>,<tu>   - Altera canais e tempo UART juntos (ex: 4,3000 para 4 entradas a cada 3s)"));
-            Serial.println(F("read       - Exibe a leitura instantanea de todas as entradas em mV"));
-            Serial.println(F("send       - Dispara imediatamente o envio do lote de amostras em mV"));
-            Serial.println(F("vdd        - Exibe a calibracao atual da fonte VDD (Bandgap) em mV"));
-            Serial.println(F("reset      - Zera o buffer de amostras e reinicia o indice"));
-            Serial.println(F("help       - Exibe esta mensagem de ajuda"));
+            Serial.println(F("<c>,<tu>     - Altera canais e tempo UART (ex: 4,3000 para 4 entradas a 3s)"));
+            Serial.println(F("<c>,<ta>,<tu>- Altera canais, tempo aquisicao e envio (ex: 4,250,5000)"));
+            Serial.println(F("read         - Exibe a leitura instantanea de todas as entradas em mV"));
+            Serial.println(F("send         - Dispara imediatamente o envio do lote de amostras em mV"));
+            Serial.println(F("vdd          - Exibe a calibracao atual da fonte VDD (Bandgap) em mV"));
+            Serial.println(F("reset        - Zera o buffer de amostras e reinicia o indice"));
+            Serial.println(F("help         - Exibe esta mensagem de ajuda"));
             Serial.println(F("----------------------------"));
         }
         // Comando C<n> (ex: C4 ou c4)
@@ -373,27 +374,45 @@ void processarComandosUART()
                 Serial.println(F(">> Erro: Tempo de aquisicao invalido (min 50 ms)."));
             }
         }
-        // Comando combinado no formato CSV: <canais>,<tempo_uart> (ex: 4,3000)
+        // Comando combinado no formato CSV: <canais>,<tempo_uart> OU <canais>,<tempo_aq>,<tempo_uart>
         else if (cmd.indexOf(',') > 0)
         {
-            int idxVirgula = cmd.indexOf(',');
-            int canais = cmd.substring(0, idxVirgula).toInt();
-            unsigned long tu = cmd.substring(idxVirgula + 1).toInt();
+            int c1 = cmd.indexOf(',');
+            int c2 = cmd.indexOf(',', c1 + 1);
 
-            if (canais >= 1 && canais <= MAX_ADC_CHANNELS && tu >= ul_tempoAquisicao_ms)
+            int canais = 0;
+            unsigned long ta = ul_tempoAquisicao_ms;
+            unsigned long tu = ul_tempoEnvio_ms;
+
+            if (c2 > 0) // 3 parâmetros: canais,tempo_aquisicao,tempo_uart
+            {
+                canais = cmd.substring(0, c1).toInt();
+                ta = cmd.substring(c1 + 1, c2).toInt();
+                tu = cmd.substring(c2 + 1).toInt();
+            }
+            else // 2 parâmetros: canais,tempo_uart
+            {
+                canais = cmd.substring(0, c1).toInt();
+                tu = cmd.substring(c1 + 1).toInt();
+            }
+
+            if (canais >= 1 && canais <= MAX_ADC_CHANNELS && ta >= 50 && tu >= ta)
             {
                 u8_numCanais = (uint8_t)canais;
+                ul_tempoAquisicao_ms = ta;
                 ul_tempoEnvio_ms = tu;
                 alocarBufferContinuo();
-                Serial.print(F(">> Atualizacao combinada: "));
+                Serial.print(F(">> Configuracao atualizada com sucesso: "));
                 Serial.print(u8_numCanais);
-                Serial.print(F(" entradas ativas | Tempo UART: "));
+                Serial.print(F(" entradas | Tempo Aquisicao: "));
+                Serial.print(ul_tempoAquisicao_ms);
+                Serial.print(F(" ms | Tempo UART: "));
                 Serial.print(ul_tempoEnvio_ms);
                 Serial.println(F(" ms."));
             }
             else
             {
-                Serial.println(F(">> Formato invalido ou valores fora dos limites. Use: <canais>,<tempo_uart> (ex: 4,3000)"));
+                Serial.println(F(">> Formato ou valores invalidos. Use: <canais>,<tempo_uart> OU <canais>,<tempo_aq>,<tempo_uart> (ex: 4,250,5000)"));
             }
         }
         else if (cmd.equalsIgnoreCase("read"))
