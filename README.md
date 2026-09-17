@@ -6,11 +6,91 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
 
 ## 📌 Conteúdo do Repositório
 
-* 📁 **`aulas/`**: Notas de aula, apresentações e materiais teóricos.
-* 📁 **`codigos/`**: Exemplos práticos em C/C++ desenvolvidos em aula.
-* 📁 **`projetos/`**: Trabalhos práticos e projetos de fim de módulo.
-* 📁 **`esquematicos/`**: Diagramas de circuitos, simulações (Wokwi, Proteus) e layouts.
-* 📁 **`docs/`**: Datasheets de microcontroladores, manuais, livros de referência e guias.
+* 📁 **`Aulas/`**: Códigos e projetos práticos desenvolvidos ao longo da disciplina:
+  * 🔹 **`Aula1/`**: Data logger analógico com temporização não-bloqueante (`millis`) e alinhamento de memória via `union`/`struct`.
+  * 🔹 **`Aula2/`**: Calibração e cálculo de $V_{CC}$ real via leitura da referência interna de 1.1V (*Bandgap*) nos registradores AVR.
+  * 🔹 **`Aula3/`**: Armazenamento de parâmetros em EEPROM com validação de integridade por *checksum* e buffer circular.
+  * 🔹 **`Aula4/`**: Persistência de dados com algoritmo **CRC-16 Modbus**, interface de comando UART e rotina de *dump* hexadecimal da EEPROM.
+  * 🔹 **`Aula5_Malloc/`**: Alocação dinâmica de memória em C (`malloc`/`free`), tratamento de ponteiro nulo (`NULL`) e prevenção de *dangling pointers*.
+  * 🔹 **`Aula6_Malloc_Integrado/`**: Sistema integrado unindo alocação dinâmica, calibração via *Bandgap*, cálculo de CRC-16 por amostra e parser serial configurável.
+  * 🔹 **`Aula7_DataLogger_Final/`**: Modelo final consolidado com buffer contínuo (sem fragmentação de heap), amostragem em milivolts, integridade CRC-16 e telemetria periódica.
+* 📁 **`testes/`**: Testes rápidos de hardware, comunicação e validação:
+  * 🔹 **`teste_serial/`**: Firmware para validação de comunicação UART (*Echo*, *Blink* concorrente e telemetria periódica).
+* 📁 **`docs/`**: Literatura técnica, manuais de referência e normas:
+  * 🔹 Manuais e guias de **FreeRTOS** (API Reference e Kernel Guide).
+  * 🔹 Livro de referência em linguagem C (**Head First C**).
+  * 🔹 **`normas_carregador_byd/`**: Normas internacionais e artigos de recarga de veículos elétricos (IEC 61851-1 Modo 3 e IEC 62196-1).
+
+---
+
+## 📚 Detalhamento e Explicação de Cada Aula
+
+### 🔹 [Aula 1 — Data Logger Básico (Estruturas e Temporização)](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula1/Aula1.ino)
+* **Objetivo:** Introduzir o conceito de aquisição de dados periódica sem travar a CPU do microcontrolador.
+* **Principais Conceitos:**
+  * **Alinhamento e Mapeamento de Memória:** Uso conjunto de `union` e `struct` para permitir acesso aos dados analógicos tanto por nomes legíveis (`i16_Time`, `i16_adc0` a `i16_adc7`) quanto por índice indexado em loop (`i16_dados[9]`), garantindo ocupação estrita de 18 bytes.
+  * **Temporização Não-Bloqueante:** Gerenciamento independente de taxas de amostragem e transmissão via `millis()`, eliminando chamadas a `delay()`.
+  * **Histórico com Deslocamento:** Implementação de fila com deslocamento sequencial de amostras (`move()`).
+
+---
+
+### 🔹 [Aula 2 — Leitura de Registradores e Calibração de VCC](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula2/Aula2.ino)
+* **Objetivo:** Acessar diretamente os registradores de hardware do microcontrolador ATmega328P para calibrar a leitura de tensão do sistema.
+* **Principais Conceitos:**
+  * **Manipulação de Registradores AVR:** Configuração dos bits `REFS0`, `MUX3`, `MUX2` e `MUX1` no registrador `ADMUX` e disparo da conversão pelo `ADCSRA`.
+  * **Leitura da Referência Bandgap (1.1V):** O conversor A/D mede a sua própria tensão interna fixa de referência em relação a $V_{CC}$.
+  * **Cálculo Matemático da Tensão Real:**
+    $$\text{VDD (mV)} = \frac{1023 \times 1100\text{ mV}}{\text{Leitura ADC}}$$
+    Permite corrigir erros de medição causados por flutuações na fonte de alimentação ou bateria.
+
+---
+
+### 🔹 [Aula 3 — Memória EEPROM, Checksum e Buffer Circular](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula3/Aula3.ino)
+* **Objetivo:** Implementar persistência não-volátil de parâmetros de configuração e otimizar o histórico de amostras.
+* **Principais Conceitos:**
+  * **Persistência de Configurações:** Salva o número de canais ativos e os tempos de amostragem e UART na memória EEPROM.
+  * **Validação por Checksum:** Utiliza a macro `offsetof()` para somar os bytes da estrutura e validar se a EEPROM foi corrompida ou está vazia antes de carregar valores padrão.
+  * **Buffer Circular com Indexação Modular:** Substitui a função `move()` por incremento circular (`(indice + 1) % 5`), resultando em complexidade temporal $O(1)$ para inserção de amostras.
+  * **Parser de Comandos:** Recepção e decodificação de comandos de texto via `sscanf()` pela UART.
+
+---
+
+### 🔹 [Aula 4 — Integridade com CRC-16 Modbus e Dump Hexadecimal](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula4/Aula4.ino)
+* **Objetivo:** Elevar o nível de integridade dos dados na EEPROM e implementar ferramentas de depuração em tempo de execução.
+* **Principais Conceitos:**
+  * **Algoritmo CRC-16 (Modbus):** Implementação da verificação cíclica de redundância com o polinômio reverso `0xA001`, padrão amplamente adotado em sistemas industriais.
+  * **Comando Dump Hexadecimal:** Interface serial com comando `dump` que exibe o mapa de memória completo da EEPROM formatado em linhas de 16 bytes (`0x00: XX XX ...`).
+  * **Sinalização Heartbeat:** Inversão periódica do estado do pino `LED_BUILTIN` para monitorar a saúde do loop principal.
+
+---
+
+### 🔹 [Aula 5 — Introdução à Alocação Dinâmica (`malloc`/`free`)](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula5_Malloc/Aula5_Malloc.ino)
+* **Objetivo:** Compreender os fundamentos do gerenciamento de memória na Heap em sistemas embarcados.
+* **Principais Conceitos:**
+  * **Alocação Dinâmica:** Criação de buffers em tempo de execução com `malloc(sizeof(int16_t) * tamanho)`.
+  * **Tratamento de Falhas:** Checagem obrigatória do retorno contra ponteiro nulo (`NULL`), evitando acessos a endereços inválidos de memória.
+  * **Desalocação e Prevenção de Falhas:** Liberação da memória com `free()` e anulação imediata do ponteiro (`ptr = NULL`) para evitar *dangling pointers* (ponteiros soltos).
+
+---
+
+### 🔹 [Aula 6 — Data Logger Dinâmico Integrado](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula6_Malloc_Integrado/Aula6_Malloc_Integrado.ino)
+* **Objetivo:** Construir um registrador de dados configurável combinando alocação dinâmica por amostra, conversão de unidades e proteção por CRC.
+* **Principais Conceitos:**
+  * **Alocação por Amostra:** Estrutura dinâmica que aloca vetores independentes para cada registro conforme a quantidade de canais selecionada.
+  * **Conversão em Tempo Real:** Transforma leituras brutas de ADC (0–1023) diretamente em milivolts ($mV$) com base no $V_{CC}$ calculado continuamente via *Bandgap*.
+  * **Terminal Interativo:** Parser UART capaz de reconfigurar quantidade de canais (`C<n>`), tempo de amostragem (`TA<ms>`) e tempo de envio (`TU<ms>`), liberando e realocando memória sob demanda.
+
+---
+
+### 🔹 [Aula 7 — Data Logger Final (Otimização Contínua de Memória e Telemetria)](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula7_DataLogger_Final/Aula7_DataLogger_Final.ino)
+* **Objetivo:** Apresentar a arquitetura definitiva e robusta para um registrador de dados em microcontroladores AVR.
+* **Principais Conceitos:**
+  * **Buffer Contínuo Plano (*Flat Buffer*):** Aloca todo o lote de amostras em um único bloco de memória contínuo na Heap. Elimina por completo o problema de **fragmentação de memória** inerente a múltiplos `malloc()` individuais.
+  * **Dimensionamento Automático do Lote:**
+    $$\text{Total de Amostras} = \frac{\text{Tempo de Envio (ex: 5000 ms)}}{\text{Tempo de Aquisição (ex: 250 ms)}} = 20\text{ amostras}$$
+  * **Proteção por CRC-16 no Registro:** Cada amostra armazena os 6 canais em milivolts acrescidos do CRC-16 Modbus correspondente no último slot.
+  * **Leitura Atômica AVR:** Uso do registrador nativo `ADCW` para garantir leitura segura de `ADCL` e `ADCH` sem risco de corrupção assíncrona.
+  * **Relatório de Telemetria:** Saída serial formatada em tabela com verificação de integridade individual por linha (`[OK]` ou `[ERRO CRC]`) e comandos de controle (`send`, `vdd`, `reset`, `help`).
 
 ---
 
@@ -26,16 +106,22 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
 
 1. **Clone o repositório:**
    ```bash
-   git clone [https://github.com/seu-usuario/nome-do-repositorio.git](https://github.com/seu-usuario/nome-do-repositorio.git)
+   git clone https://github.com/luanjjbr/sistema-embarcado.git
+   ```
 
+2. **Abra o projeto:**
+   * No **Arduino IDE**: Abra qualquer pasta em `Aulas/` (o nome da pasta coincide com o arquivo `.ino` correspondente).
+   * No **VS Code**: Utilize a extensão PlatformIO ou Arduino para compilar e fazer upload para a placa.
+
+---
 
 ### 🏷️ Tipos de Commit Utilizados
 
 | Tipo | Descrição | Exemplo |
 | :--- | :--- | :--- |
-| **`feat`** | Nova funcionalidade ou implementação de código | `feat(aula3): adiciona parser uart e salvar na eeprom` |
-| **`fix`** | Correção de bugs, vazamentos de memória ou ponteiros | `fix(malloc_2): corrige checagem de retorno do malloc para NULL` |
-| **`docs`** | Alteração de documentação, README ou inclusão de livros | `docs: adiciona livro de referencia da disciplina` |
-| **`refactor`** | Reorganização do código sem alterar o comportamento | `refactor(adc): melhora calculo de vcc via bandgap` |
-| **`style`** | Ajustes de formatação, nomes de arquivos e pastas | `style(aula4): corrige nome da pasta de alua4 para aula4` |
+| **`feat`** | Nova funcionalidade ou implementação de código | `feat(Aula3): adiciona parser uart e salvar na eeprom` |
+| **`fix`** | Correção de bugs, vazamentos de memória ou ponteiros | `fix(Aula6_Malloc_Integrado): corrige checagem de retorno do malloc` |
+| **`docs`** | Alteração de documentação, README ou inclusão de livros | `docs: atualiza estrutura de pastas no README` |
+| **`refactor`** | Reorganização do código sem alterar o comportamento | `refactor(Aula2): melhora calculo de vcc via bandgap` |
+| **`style`** | Ajustes de formatação, nomes de arquivos e pastas | `style: padroniza nomes de pastas para padrao Arduino IDE` |
 | **`chore`** | Atualizações de configurações do Git, `.gitignore` ou build | `chore: atualiza gitignore para ignorar arquivos temporarios` |
