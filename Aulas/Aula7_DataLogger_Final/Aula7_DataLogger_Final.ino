@@ -215,16 +215,16 @@ int16_t i16_convertADC(int16_t i16_raw)
 }
 
 // ============================================================
-// Transmissão Estruturada do Lote de Amostras via UART
+// Transmissão Estruturada do Lote de Amostras via UART (Tudo em mV)
 // ============================================================
 void transmitirLoteUART()
 {
-    Serial.println(F("\n================ RELATORIO DE TELEMETRIA ================"));
-    Serial.print(F("VDD Calibrado: "));
+    Serial.println(F("\n================ RELATORIO DE TELEMETRIA (TODAS AS ENTRADAS EM mV) ================"));
+    Serial.print(F("Tensão VDD do Sistema: "));
     Serial.print(i16_VDDGlobal);
-    Serial.println(F(" mV"));
-    Serial.println(F("Indice | A0(mV) | A1(mV) | A2(mV) | A3(mV) | A4(mV) | A5(mV) | CRC-16"));
-    Serial.println(F("---------------------------------------------------------"));
+    Serial.println(F(" mV (Calibrada via Bandgap 1.1V)"));
+    Serial.println(F("Indice |    A0    |    A1    |    A2    |    A3    |    A4    |    A5    |  CRC-16  | Status"));
+    Serial.println(F("-----------------------------------------------------------------------------------"));
 
     for (uint16_t i = 0; i < u16_totalAmostras; i++)
     {
@@ -235,7 +235,7 @@ void transmitirLoteUART()
         Serial.print(i);
         Serial.print(F("]   | "));
 
-        // Imprime os canais analógicos convertidos em mV
+        // Imprime todas as entradas convertidas estritamente em milivolts (mV)
         for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
         {
             int16_t canal_mV = i16_adcData[u16_offsetAmostra + ch];
@@ -243,7 +243,7 @@ void transmitirLoteUART()
             if (canal_mV < 100)  Serial.print(F(" "));
             if (canal_mV < 10)   Serial.print(F(" "));
             Serial.print(canal_mV);
-            Serial.print(F("  | "));
+            Serial.print(F(" mV | "));
         }
 
         // Lê e imprime o CRC-16 armazenado no último slot da amostra
@@ -261,14 +261,14 @@ void transmitirLoteUART()
 
         if (u16_crcArmazenado == u16_crcVerificacao)
         {
-            Serial.println(F(" [OK]"));
+            Serial.println(F(" | [OK]"));
         }
         else
         {
-            Serial.println(F(" [ERRO CRC]"));
+            Serial.println(F(" | [ERRO CRC]"));
         }
     }
-    Serial.println(F("=========================================================\n"));
+    Serial.println(F("===================================================================================\n"));
 }
 
 // ============================================================
@@ -284,11 +284,27 @@ void processarComandosUART()
         if (cmd.equalsIgnoreCase("help"))
         {
             Serial.println(F("\n--- Comandos Disponiveis ---"));
-            Serial.println(F("send   - Dispara imediatamente o envio do lote de amostras"));
-            Serial.println(F("vdd    - Exibe a calibracao atual da fonte VDD (Bandgap)"));
+            Serial.println(F("read   - Exibe a leitura instantanea de todas as entradas em mV"));
+            Serial.println(F("send   - Dispara imediatamente o envio do lote de amostras em mV"));
+            Serial.println(F("vdd    - Exibe a calibracao atual da fonte VDD (Bandgap) em mV"));
             Serial.println(F("reset  - Zera o buffer de amostras e reinicia o indice"));
             Serial.println(F("help   - Exibe esta mensagem de ajuda"));
             Serial.println(F("----------------------------"));
+        }
+        else if (cmd.equalsIgnoreCase("read"))
+        {
+            Serial.print(F(">> Leituras Instantaneas (mV): "));
+            for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
+            {
+                int16_t raw = analogRead(A0 + ch);
+                Serial.print(F("A"));
+                Serial.print(ch);
+                Serial.print(F(": "));
+                Serial.print(i16_convertADC(raw));
+                Serial.print(F(" mV"));
+                if (ch < NUM_ADC_CHANNELS - 1) Serial.print(F(" | "));
+            }
+            Serial.println();
         }
         else if (cmd.equalsIgnoreCase("send"))
         {
@@ -296,7 +312,7 @@ void processarComandosUART()
         }
         else if (cmd.equalsIgnoreCase("vdd"))
         {
-            Serial.print(F(">> VDD Calibrado: "));
+            Serial.print(F(">> VDD Calibrado (Alimentacao): "));
             Serial.print(i16_VDDGlobal);
             Serial.println(F(" mV"));
         }
@@ -341,6 +357,7 @@ void setup()
     ul_timerADCAQ     = agora;
     ul_timerAQSEND    = agora;
 
+    Serial.println(F("[INFO] Modo de operacao: Todas as entradas sao convertidas e exibidas estritamente em milivolts (mV)."));
     Serial.println(F("[INFO] Sistema pronto. Digite 'help' no Monitor Serial."));
 }
 
@@ -387,6 +404,31 @@ void loop()
 
         // Salva o CRC-16 no último slot da amostra
         i16_adcData[u16_offsetAmostra + NUM_ADC_CHANNELS] = (int16_t)u16_crcCalculado;
+
+        // Exibe na tela (Serial Monitor) todas as entradas em milivolts (mV)
+        Serial.print(F("AQ#"));
+        if (u16_indiceAmostra < 9) Serial.print(F("0"));
+        Serial.print(u16_indiceAmostra + 1);
+        Serial.print(F("/"));
+        Serial.print(u16_totalAmostras);
+        Serial.print(F(" | "));
+
+        for (uint8_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
+        {
+            Serial.print(F("A"));
+            Serial.print(ch);
+            Serial.print(F(": "));
+            Serial.print(i16_adcData[u16_offsetAmostra + ch]);
+            Serial.print(F(" mV"));
+            if (ch < NUM_ADC_CHANNELS - 1)
+            {
+                Serial.print(F(" | "));
+            }
+        }
+        Serial.print(F(" | CRC: 0x"));
+        if (u16_crcCalculado < 0x1000) Serial.print(F("0"));
+        Serial.print(u16_crcCalculado, HEX);
+        Serial.println();
 
         // Avança circularmente o índice de amostras
         u16_indiceAmostra = (u16_indiceAmostra + 1) % u16_totalAmostras;
