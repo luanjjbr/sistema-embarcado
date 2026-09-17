@@ -115,6 +115,78 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
 
 ---
 
+## 🖥️ Interação com o Usuário via Serial (Terminal UART)
+
+O firmware final ([Aula 7](file:///c:/Users/italo/OneDrive/Imagens/Git/sistema-embarcado/Aulas/Aula7_DataLogger_Final/Aula7_DataLogger_Final.ino)) conta com um terminal serial interativo que permite configurar o sistema em tempo de execução sem necessidade de recompilar ou regravar a placa.
+
+* **Velocidade de Comunicação:** `9600 baud`
+* **Configuração de Final de Linha:** `Nova Linha` (`NL` / `\n`)
+
+---
+
+### 📋 Tabela de Comandos Disponíveis
+
+| Comando | Formato | O que faz | Exemplo | Resposta do Sistema |
+| :--- | :--- | :--- | :---: | :--- |
+| **Canais** | `C<n>` | Define o número de entradas ativas (1 a 6) | `C4` | `>> Numero de entradas alterado para: 4` |
+| **Tempo UART** | `TU<ms>` | Altera o intervalo de envio serial em ms | `TU3000` | `>> Tempo de envio UART alterado para: 3000 ms` |
+| **Tempo Aquisição** | `TA<ms>` | Altera o intervalo entre leituras analógicas em ms | `TA500` | `>> Tempo de aquisicao alterado para: 500 ms` |
+| **Configuração 2P** | `<c>,<tu>` | Altera canais e tempo de envio juntos | `4,3000` | `>> Configuracao atualizada: 4 canais \| Envio: 3000 ms` |
+| **Configuração 3P** | `<c>,<ta>,<tu>` | Altera canais, aquisição e envio de uma vez | `4,250,5000` | `>> Configuracao atualizada: 4 canais \| Aq: 250 ms \| Envio: 5000 ms` |
+| **Leitura Instantânea**| `read` | Imprime a leitura instantânea de todos os canais em mV | `read` | `>> Leituras Instantaneas (mV): A0: 4980 mV \| A1: 2450 mV ...` |
+| **Envio Imediato** | `send` | Força a transmissão imediata da tabela do lote | `send` | Dispara o relatório consolidado de telemetria |
+| **Tensão VDD** | `vdd` | Exibe a tensão da fonte calibrada via Bandgap 1.1V | `vdd` | `>> VDD Calibrado (Alimentacao): 5012 mV` |
+| **Limpeza** | `reset` | Zera todo o buffer na RAM e reinicia o lote | `reset` | `>> Buffer de telemetria reinicializado para zero.` |
+| **Ajuda** | `help` | Exibe o menu com a lista de comandos | `help` | Lista todos os comandos disponíveis |
+
+---
+
+### 💡 Exemplos Práticos de Interação
+
+#### Exemplo 1: Reconfigurar o Sistema para 4 Canais e Envio a cada 3 Segundos
+Digite no Monitor Serial:
+```text
+4,500,3000
+```
+**Resposta do Microcontrolador:**
+```text
+[INFO] Buffer de memoria alocado: 60 bytes (6 amostras x 5 words). Canais: 4 | Tempo UART: 3000 ms.
+>> Configuracao atualizada com sucesso: 4 entradas | Tempo Aquisicao: 500 ms | Tempo UART: 3000 ms.
+```
+> O microcontrolador libera a memória anterior via `free()`, calcula que $3000\text{ ms} / 500\text{ ms} = 6\text{ amostras}$ e aloca o tamanho exato na Heap com `malloc()`.
+
+---
+
+#### Exemplo 2: Consultar Leitura Instantânea de Todas as Entradas em Milivolts (mV)
+Digite no Monitor Serial:
+```text
+read
+```
+**Resposta do Microcontrolador:**
+```text
+>> Leituras Instantaneas (mV): A0: 4980 mV | A1: 2450 mV | A2: 1200 mV | A3: 0 mV
+```
+
+---
+
+#### Exemplo 3: Relatório Automático de Telemetria (Consolidado em mV com CRC-16)
+A cada término de ciclo UART (ex: 5 segundos), o microcontrolador transmite automaticamente:
+```text
+================ RELATORIO DE TELEMETRIA (TODAS AS ENTRADAS EM mV) ================
+Tensão VDD do Sistema: 5012 mV | Canais Ativos: 4 | Amostras: 6 | Intervalo UART: 3000 ms
+Indice |    A0    |    A1    |    A2    |    A3    |  CRC-16  | Status
+-----------------------------------------------------------------------------------
+[00]   |  4980 mV |  2450 mV |  1200 mV |     0 mV | 0x1A2B   | [OK]
+[01]   |  4980 mV |  2452 mV |  1198 mV |     0 mV | 0x3F81   | [OK]
+[02]   |  4978 mV |  2450 mV |  1200 mV |     0 mV | 0x82C4   | [OK]
+[03]   |  4980 mV |  2450 mV |  1200 mV |     0 mV | 0x1A2B   | [OK]
+[04]   |  4982 mV |  2448 mV |  1202 mV |     0 mV | 0x9D4E   | [OK]
+[05]   |  4980 mV |  2450 mV |  1200 mV |     0 mV | 0x1A2B   | [OK]
+===================================================================================
+```
+
+---
+
 ### 🏷️ Tipos de Commit Utilizados
 
 | Tipo | Descrição | Exemplo |
