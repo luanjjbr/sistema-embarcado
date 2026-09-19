@@ -15,6 +15,7 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * 🔹 **`Aula6_Malloc_Integrado/`**: Sistema integrado unindo alocação dinâmica, calibração via *Bandgap*, cálculo de CRC-16 por amostra e parser serial configurável.
   * 🔹 **`Aula7_DataLogger_Final/`**: Modelo final consolidado com buffer contínuo (sem fragmentação de heap), amostragem em milivolts, integridade CRC-16 e telemetria periódica.
   * 🔹 **`Aula8/`**: Introdução a sistemas operacionais de tempo real (**FreeRTOS**), tarefas concorrentes preemptivas (`xTaskCreate`, `vTaskDelay`), leitura analógica e interface com display LCD 16x2.
+* 📁 **`bancada_de_teste/`**: Projeto PlatformIO multi-plataforma para gravação e validação unificada em **ESP32**, **Arduino Nano** e **Arduino Mega 2560** com CLI Serial e telemetria de hardware.
 * 📁 **`testes/`**: Testes rápidos de hardware, comunicação e validação:
   * 🔹 **`teste_serial/`**: Firmware para validação de comunicação UART (*Echo*, *Blink* concorrente e telemetria periódica).
 * 📁 **`docs/`**: Literatura técnica, manuais de referência e normas:
@@ -106,7 +107,7 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
 
 ## 💻 Microcontroladores & Ferramentas Utilizadas
 
-* **Hardware:** Arduino Uno / ATmega328P
+* **Hardware:** ESP32 (DevKit v1), Arduino Nano (ATmega328P), Arduino Mega 2560, Arduino Uno
 * **Linguagens:** C / C++
 * **IDEs & Ambientes:** VS Code (PlatformIO) / Arduino IDE
 
