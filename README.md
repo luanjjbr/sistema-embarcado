@@ -14,6 +14,7 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * 🔹 **`Aula5_Malloc/`**: Alocação dinâmica de memória em C (`malloc`/`free`), tratamento de ponteiro nulo (`NULL`) e prevenção de *dangling pointers*.
   * 🔹 **`Aula6_Malloc_Integrado/`**: Sistema integrado unindo alocação dinâmica, calibração via *Bandgap*, cálculo de CRC-16 por amostra e parser serial configurável.
   * 🔹 **`Aula7_DataLogger_Final/`**: Modelo final consolidado com buffer contínuo (sem fragmentação de heap), amostragem em milivolts, integridade CRC-16 e telemetria periódica.
+  * 🔹 **`Aula8/`**: Introdução a sistemas operacionais de tempo real (**FreeRTOS**), tarefas concorrentes preemptivas (`xTaskCreate`, `vTaskDelay`), leitura analógica e interface com display LCD 16x2.
 * 📁 **`testes/`**: Testes rápidos de hardware, comunicação e validação:
   * 🔹 **`teste_serial/`**: Firmware para validação de comunicação UART (*Echo*, *Blink* concorrente e telemetria periódica).
 * 📁 **`docs/`**: Literatura técnica, manuais de referência e normas:
@@ -91,6 +92,15 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * **Proteção por CRC-16 no Registro:** Cada amostra armazena os 6 canais em milivolts acrescidos do CRC-16 Modbus correspondente no último slot.
   * **Leitura Atômica AVR:** Uso do registrador nativo `ADCW` para garantir leitura segura de `ADCL` e `ADCH` sem risco de corrupção assíncrona.
   * **Relatório de Telemetria:** Saída serial formatada em tabela com verificação de integridade individual por linha (`[OK]` ou `[ERRO CRC]`) e comandos de controle (`send`, `vdd`, `reset`, `help`).
+
+---
+
+### 🔹 [Aula 8 — Introdução ao FreeRTOS e Display LCD](Aulas/Aula8/Aula8.ino)
+* **Objetivo:** Implementar multitarefa preemptiva em microcontrolador utilizando o sistema operacional de tempo real **FreeRTOS**.
+* **Principais Conceitos:**
+  * **Criação e Priorização de Tarefas:** Instanciação de tasks com `xTaskCreate()` para sinalização com LED (`TaskBlink`), aquisição analógica periódica (`TaskAnalogRead`) e interface com usuário via display (`TaskDisplay`).
+  * **Temporização Preemptiva:** Uso de `vTaskDelay()` para liberar a CPU durante intervalos de espera, permitindo que tarefas de menor prioridade ou mesmo nível executem sem bloqueio do processador.
+  * **Concorrência com Display LCD 16x2:** Atualização contínua dos dados lidos na entrada `A0` em tela de cristal líquido de forma assíncrona e concorrente.
 
 ---
 

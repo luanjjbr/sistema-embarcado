@@ -1,0 +1,103 @@
+# ==============================================================================
+# Git Ignore - Sistemas Embarcados (C / C++ / Arduino / AVR / FreeRTOS / PlatformIO)
+# ==============================================================================
+
+# --- Compilação e Binários de Embarcados ---
+*.hex
+*.bin
+*.elf
+*.eep
+*.lss
+*.map
+*.sym
+*.srec
+
+# --- Objetos e Bibliotecas Compiladas ---
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.d
+
+# --- Arduino IDE (1.x e 2.x) ---
+build/
+*.cpp.hex
+*.cpp.elf
+*.cpp.o
+*.cpp.d
+
+# --- PlatformIO ---
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+
+# --- CMake / Make ---
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile.old
+compile_commands.json
+cmake-build-*/
+
+# --- IDEs e Editores ---
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# CLion / JetBrains
+.idea/
+
+# Visual Studio / Atmel Studio / Microchip Studio
+.vs/
+*.suo
+*.user
+*.userosv
+*.sln.docstates
+Debug/
+Release/
+*.atsuo
+
+# Eclipse / STM32CubeIDE (mantém arquivos base do projeto se versionados)
+.metadata/
+*.launch
+bin/
+
+# Editores de texto comuns (Vim, Emacs, Sublime)
+*.swp
+*.swo
+*~
+*.bak
+*.sublime-project
+*.sublime-workspace
+
+# --- Logs e Arquivos Temporários ---
+*.log
+*.tmp
+*.temp
+
+# --- Arquivos de Sistema Operacional ---
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+.directory
