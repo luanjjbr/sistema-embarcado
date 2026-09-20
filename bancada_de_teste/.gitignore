@@ -12,7 +12,9 @@
 # IDE / Editores (Visual Studio Code)
 # ==============================================================================
 # Configurações geradas automaticamente pelo PlatformIO no VS Code
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 # ==============================================================================
 # Binários e Arquivos de Compilação
@@ -39,10 +41,13 @@ $RECYCLE.BIN/
 .LSOverride
 
 # ==============================================================================
-# Logs e Temporários
+# Python & Testes Automatizados
 # ==============================================================================
-*.log
-*.tmp
-*.bak
-*.swp
-*~
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+tests/relatorios/*.html
+tests/relatorios/*.xml
+
+
