@@ -1,0 +1,52 @@
+# ==============================================================================
+# PlatformIO
+# ==============================================================================
+# Diretórios de compilação, cache e dependências locais
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+
+# ==============================================================================
+# IDE / Editores (Visual Studio Code)
+# ==============================================================================
+# Configurações geradas automaticamente pelo PlatformIO no VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# ==============================================================================
+# Binários e Arquivos de Compilação
+# ==============================================================================
+*.hex
+*.bin
+*.elf
+*.o
+*.a
+*.d
+
+# ==============================================================================
+# Arquivos do Sistema Operacional
+# ==============================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ==============================================================================
+# Python & Testes Automatizados
+# ==============================================================================
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+tests/relatorios/*.html
+tests/relatorios/*.xml
+

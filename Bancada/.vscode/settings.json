@@ -1,0 +1,9 @@
+{
+  "git.openRepositoryInParentFolders": "always",
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+  "robotcode.robot.outputDir": "${workspaceFolder}/tests/relatorios",
+  "robotcode.robot.paths": [
+    "${workspaceFolder}/tests/robot"
+  ]
+}
+
