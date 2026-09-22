@@ -1,6 +1,8 @@
 #include <Arduino_FreeRTOS.h>
 #include <LiquidCrystal.h>
 
+const int Ci_Pin12 = 12;
+
 int sensorValue = 0;
 // define two tasks for Blink & AnalogRead
 void TaskBlink( void *pvParameters );
@@ -12,10 +14,12 @@ void setup() {
   
   // initialize serial communication at 9600 bits per second:
   Serial.begin(9600);
-  
+  pinMode(Ci_Pin12, OUTPUT);digitalWrite(Ci_Pin12, LOW);
+
   while (!Serial) {
     ;
   }
+
   xTaskCreate(TaskBlink,  "Blink",  128,  NULL,  2 ,  NULL );
 
   xTaskCreate(TaskAnalogRead,  "AnalogRead",  128,  NULL,  1,  NULL );
@@ -52,6 +56,7 @@ void TaskAnalogRead(void *pvParameters)  // This is a task.
   
   for (;;)
   {
+    digitalWrite(Ci_Pin12, !digitalRead(Ci_Pin12));
     // read the input on analog pin 0:
     sensorValue = analogRead(A0);
     // print out the value you read:
