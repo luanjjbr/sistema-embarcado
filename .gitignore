@@ -101,3 +101,26 @@ $RECYCLE.BIN/
 
 # Linux
 .directory
+
+# Arquivos de ambiente e segredos locais (NUNCA comitar no Git)
+.env
+*.env
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Relatórios de auditoria gerados localmente (gerados sob demanda)
+audit/*.md
+!audit/.gitkeep
+
+# Arquivos de editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs e arquivos compactados
+*.log
+*.zip

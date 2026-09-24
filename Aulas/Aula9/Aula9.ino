@@ -86,7 +86,7 @@ void vNewTaskAnalogRead(void *pvParameters)
     // 1. Amostragem contínua sem preempção (64 amostras a cada 260 µs)
     vTaskSuspendAll();
     for (int8_t i = 0; i < DEF_NUMAQUISITION;) {
-      if (micros() - ul_microsADC >= 260) {
+      if (micros() - ul_microsADC >= 1000) {
         ul_microsADC = micros();
         digitalWrite(Ci_Pin12, !digitalRead(Ci_Pin12));
         i16_ADCReadBuff[i++] = analogRead(A1);
@@ -97,16 +97,6 @@ void vNewTaskAnalogRead(void *pvParameters)
 
     digitalWrite(Ci_Pin12, LOW);
 
-    // 3. Atualiza a leitura global de A1 para o display LCD
-    sensorValueA1 = i16_ADCReadBuff[DEF_NUMAQUISITION - 1];
-
-    // 4. Transmissão serial eficiente (sem duplicar incremento e sem usar classe String)
-    for (int8_t i = 0; i < DEF_NUMAQUISITION; i++) {
-      Serial.print(F("Aquisicao "));
-      Serial.print(i);
-      Serial.print(F(" : "));
-      Serial.println(i16_ADCReadBuff[i]);
-    }
 
     // 5. Cede CPU para evitar inanição das tarefas de menor prioridade
     vTaskDelay(pdMS_TO_TICKS(500));
