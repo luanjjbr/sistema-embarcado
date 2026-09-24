@@ -8,4 +8,4 @@
 - **Aula 6 (Malloc Integrado):** Integração de data logger dinâmico com parser serial interativo e comandos CLI.
 - **Aula 7 (Data Logger Final):** Arquitetura *Flat Buffer* estático contínuo para telemetria de alta performance com zero fragmentação.
 - **Aula 8:** Introdução ao FreeRTOS multitarefa preemptivo, tarefas concorrentes e display LCD.
-- **Aula 9:** FreeRTOS com aquisição analógica multicanal, tarefas concorrentes e LiquidCrystal.
+- **Aula 9:** FreeRTOS multitarefa com aquisição analógica multicanal, amostragem em rajada (*burst sampling* de 64 amostras no pino 12), proteção de concorrência na UART via Mutex (`xSerialMutex`) e display LCD.

@@ -62,7 +62,7 @@ sistema-embarcado/
 │       ├── protocolo_serial_cli.md# Especificação do parser serial CLI (cabo 0..6, OK, ERRO)
 │       └── aulas_academicas.md    # Resumo conceitual dos módulos práticos (Aulas 1 a 9)
 │
-├── audit/                         # 📋 Relatórios de Auditoria e Testes de Bancada
+├── audit/                         # 📋 Relatórios de auditoria para todas as modificações
 │   └── .gitkeep                   # Rastreamento do diretório no repositório
 │
 ├── docs/                          # Manuais técnicos do FreeRTOS, livro Head First C e normas IEC

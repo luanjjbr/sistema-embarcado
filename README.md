@@ -15,6 +15,8 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * 🔹 **`Aula6_Malloc_Integrado/`**: Sistema integrado unindo alocação dinâmica, calibração via *Bandgap*, cálculo de CRC-16 por amostra e parser serial configurável.
   * 🔹 **`Aula7_DataLogger_Final/`**: Modelo final consolidado com buffer contínuo (sem fragmentação de heap), amostragem em milivolts, integridade CRC-16 e telemetria periódica.
   * 🔹 **`Aula8/`**: Introdução a sistemas operacionais de tempo real (**FreeRTOS**), tarefas concorrentes preemptivas (`xTaskCreate`, `vTaskDelay`), leitura analógica e interface com display LCD 16x2.
+  * 🔹 **`Aula9/`**: FreeRTOS multitarefa com aquisição analógica concorrente, amostragem em rajada rápida (*burst sampling* no pino 12), proteção da UART via Mutex (`xSerialMutex`) e interface com LCD 16x2.
+* 📁 **[`Bancada/`](Bancada/)**: Firmware com FreeRTOS para Arduino Nano e Mega 2560 (CLI Serial 9600 baud, pinos D4-D9 e proteção Break-Before-Make).
 * 📁 **[`bancada_de_teste/`](bancada_de_teste/)**: Bancada de testes de Estação de Recarga Veicular (IEC 61851-1 / IEC 62196-2) em **C++ POO**, **FreeRTOS** multitarefa (ESP32 / Arduino Nano / Mega) e homologação automatizada com **Robot Framework** e relatórios visuais.
 * 📁 **`testes/`**: Testes rápidos de hardware, comunicação e validação:
   * 🔹 **`teste_serial/`**: Firmware para validação de comunicação UART (*Echo*, *Blink* concorrente e telemetria periódica).
@@ -102,6 +104,17 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * **Criação e Priorização de Tarefas:** Instanciação de tasks com `xTaskCreate()` para sinalização com LED (`TaskBlink`), aquisição analógica periódica (`TaskAnalogRead`) e interface com usuário via display (`TaskDisplay`).
   * **Temporização Preemptiva:** Uso de `vTaskDelay()` para liberar a CPU durante intervalos de espera, permitindo que tarefas de menor prioridade ou mesmo nível executem sem bloqueio do processador.
   * **Concorrência com Display LCD 16x2:** Atualização contínua dos dados lidos na entrada `A0` em tela de cristal líquido de forma assíncrona e concorrente.
+
+---
+
+### 🔹 [Aula 9 — FreeRTOS Multitarefa, Amostragem em Rajada e Sincronização por Mutex](Aulas/Aula9/Aula9.ino)
+* **Objetivo:** Explorar aquisição analógica concorrente com FreeRTOS, amostragem rápida em rajada com sinalizador em osciloscópio e proteção da UART contra colisões e estouro de buffer.
+* **Principais Conceitos:**
+  * **Amostragem em Rajada (*Burst Sampling*) com Pino de Trigger:** A tarefa `vNewTaskAnalogRead` realiza a leitura de 64 amostras em intervalos de 1 ms no pino A1, sinalizando o início e fim da rajada no pino digital 12 (`Ci_Pin12`) para aferição com osciloscópio ou analisador lógico.
+  * **Controle de Preempção com `vTaskSuspendAll()` e `xTaskResumeAll()`:** Congelamento temporário do escalonador preemptivo durante a rajada de aquisição para garantir temporização determinística rígida.
+  * **Exclusão Mútua na UART (`xSerialMutex`):** Proteção da porta Serial compartilhada entre `TaskAnalogRead` (leitura periódica de A0) e `vNewTaskAnalogRead` (amostras de A1) via `xSemaphoreCreateMutex()`, eliminando corrupção de mensagens e caracteres truncados.
+  * **Formatação Eficiente de Telemetria:** Impressão das 64 amostras em formato tabular (8 amostras por linha) a 9600 bps para evitar estouro do buffer circular de 64 bytes da UART do microcontrolador.
+  * **Concorrência com Display LCD 16x2:** Atualização em tempo real das variáveis globais `sensorValue` e `sensorValueA1` no display.
 
 ---
 

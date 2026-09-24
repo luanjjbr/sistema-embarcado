@@ -29,8 +29,8 @@ void setup() {
   // Criação das tarefas com prioridades e pilhas dimensionadas com segurança
   xTaskCreate(TaskBlink,          "Blink",          128,  NULL,  1,  NULL );
   xTaskCreate(TaskAnalogRead,     "AnalogRead",     128,  NULL,  1,  NULL );
-  xTaskCreate(TaskDisplay,        "Display",        256,  NULL,  1,  NULL );
-  xTaskCreate(vNewTaskAnalogRead, "AnalogRead_new", 160,  NULL,  2,  NULL );
+  //xTaskCreate(TaskDisplay,        "Display",        256,  NULL,  1,  NULL );
+  xTaskCreate(vNewTaskAnalogRead, "AnalogRead_new", 256,  NULL,  1,  NULL );
 }
 
 void loop() {
@@ -41,8 +41,7 @@ void loop() {
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
 
-void TaskBlink(void *pvParameters)
-{
+void TaskBlink(void *pvParameters){
   (void) pvParameters;
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -52,11 +51,11 @@ void TaskBlink(void *pvParameters)
     vTaskDelay( 1000 / portTICK_PERIOD_MS );
     digitalWrite(LED_BUILTIN, LOW);
     vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    //Serial.println("Blink");
   }
 }
 
-void TaskAnalogRead(void *pvParameters)
-{
+void TaskAnalogRead(void *pvParameters){
   (void) pvParameters;
   
   for (;;)
@@ -66,12 +65,11 @@ void TaskAnalogRead(void *pvParameters)
 
     Serial.print(F("A0: "));
     Serial.println(sensorValue);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(1);
   }
 }
 
-void vNewTaskAnalogRead(void *pvParameters)
-{
+void vNewTaskAnalogRead(void *pvParameters){
   (void) pvParameters;
   unsigned long ul_microsADC = 0;
   
@@ -85,8 +83,9 @@ void vNewTaskAnalogRead(void *pvParameters)
 
     // 1. Amostragem contínua sem preempção (64 amostras a cada 260 µs)
     vTaskSuspendAll();
+
     for (int8_t i = 0; i < DEF_NUMAQUISITION;) {
-      if (micros() - ul_microsADC >= 1000) {
+      if (micros() - ul_microsADC >= 260) {
         ul_microsADC = micros();
         digitalWrite(Ci_Pin12, !digitalRead(Ci_Pin12));
         i16_ADCReadBuff[i++] = analogRead(A1);
@@ -97,14 +96,12 @@ void vNewTaskAnalogRead(void *pvParameters)
 
     digitalWrite(Ci_Pin12, LOW);
 
-
     // 5. Cede CPU para evitar inanição das tarefas de menor prioridade
-    vTaskDelay(pdMS_TO_TICKS(500));
+    vTaskDelay(500/ portTICK_PERIOD_MS);
   }
 }
 
-void TaskDisplay(void *pvParameters)
-{
+void TaskDisplay(void *pvParameters){
   (void) pvParameters;
   const int ipinDB7 = 23, ipinDB6 = 25, ipinDB5 = 27, ipinDB4 = 29;
   const int ipinE = 39, ipinRW = 41, ipinRS = 43, ipinV0 = 45;
