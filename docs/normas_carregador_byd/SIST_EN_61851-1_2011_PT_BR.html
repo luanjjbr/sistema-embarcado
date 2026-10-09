@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>SIST EN 61851-1:2011 / IEC 61851-1:2010 - Tradução Técnica Oficial com Figuras</title>
+<style>
+    @page {
+        size: A4;
+        margin: 20mm 15mm 20mm 15mm;
+    }
+    body {
+        font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+        line-height: 1.5;
+        color: #1a1a1a;
+    }
+    .cover {
+        text-align: center;
+        page-break-after: always;
+        padding-top: 80px;
+    }
+    .cover h1 {
+        font-size: 24pt;
+        color: #003366;
+        margin-bottom: 10px;
+        border: none;
+    }
+    .cover h2 {
+        font-size: 16pt;
+        color: #444;
+        font-weight: normal;
+        margin-bottom: 30px;
+        border: none;
+    }
+    .cover .standard-tag {
+        font-size: 18pt;
+        font-weight: bold;
+        color: #d9534f;
+        margin-bottom: 40px;
+    }
+    .cover .meta {
+        margin-top: 100px;
+        font-size: 10pt;
+        color: #666;
+        line-height: 1.8;
+    }
+    h1 {
+        font-size: 15pt;
+        color: #003366;
+        border-bottom: 2px solid #003366;
+        padding-bottom: 4px;
+        margin-top: 25px;
+        page-break-before: always;
+    }
+    h1.first {
+        page-break-before: avoid;
+    }
+    h2 {
+        font-size: 12pt;
+        color: #222;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 3px;
+        margin-top: 18px;
+    }
+    h3 {
+        font-size: 10.5pt;
+        color: #005599;
+        margin-top: 14px;
+    }
+    p, li {
+        text-align: justify;
+        margin-bottom: 6px;
+    }
+    ul, ol {
+        margin-top: 4px;
+        margin-bottom: 10px;
+        padding-left: 25px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 9pt;
+        page-break-inside: avoid;
+    }
+    th, td {
+        border: 1px solid #777;
+        padding: 5px 7px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background-color: #003366;
+        color: #ffffff;
+        font-weight: bold;
+    }
+    tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+    .nota {
+        background-color: #f0f4f8;
+        border-left: 4px solid #005599;
+        padding: 6px 10px;
+        margin: 8px 0;
+        font-size: 9pt;
+    }
+    .termo {
+        font-weight: bold;
+        color: #003366;
+    }
+    .anexo-header {
+        text-align: center;
+        background-color: #eaeff5;
+        padding: 10px;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #bcd;
+    }
+    .figura-box {
+        text-align: center;
+        margin: 14px 0;
+        page-break-inside: avoid;
+    }
+    .figura-box img {
+        max-width: 90%;
+        height: auto;
+        border: 1px solid #ddd;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .figura-caption {
+        font-weight: bold;
+        color: #003366;
+        font-size: 9.5pt;
+        margin-top: 6px;
+    }
+</style>
+</head>
+<body>
+
+<div class="cover">
+    <div class="standard-tag">NORMA TÉCNICA EUROPEIA / INTERNACIONAL</div>
+    <h1>SIST EN 61851-1:2011</h1>
+    <h2>(Idêntica à IEC 61851-1:2010 — Edição 2.0)</h2>
+    <div style="font-size: 15pt; font-weight: bold; margin-top: 40px; color: #333;">
+        SISTEMA DE RECARGA CONDUTIVA PARA VEÍCULOS ELÉTRICOS
+    </div>
+    <div style="font-size: 13pt; color: #555; margin-top: 10px;">
+        Parte 1: Requisitos Gerais
+    </div>
+    
+    <div class="meta">
+        <strong>Tradução Técnica Integral de Referência com Figuras e Diagramas Originais Preservados</strong><br>
+        Comitê Técnico: CENELEC TC 69 / IEC TC 69 (Veículos Elétricos Rodoviários)<br>
+        Classificação ICS: 43.120 (Veículos Rodoviários Elétricos)<br>
+        Substitui: EN 61851-1:2001<br>
+        Data de Aprovação CENELEC: 2011-04-12 | Publicação: Agosto de 2011<br>
+        Repositório: <em>sistema-embarcado / bancada de testes EV</em>
+    </div>
+</div>
+
+<h1 class="first">PREFÁCIO EUROPEU (CENELEC)</h1>
+<p>O texto do documento 69/173/FDIS, futura edição 2 da IEC 61851-1, elaborado pelo comitê técnico IEC TC 69 (<em>Electric road vehicles and electric industrial trucks</em>), foi submetido à votação paralela IEC-CENELEC e aprovado pelo CENELEC como EN 61851-1 em 12 de abril de 2011.</p>
+<p>Esta Norma Europeia substitui formalmente a EN 61851-1:2001.</p>
+
+<p><strong>Principais alterações em relação à primeira edição (EN 61851-1:2001):</strong></p>
+<ul>
+    <li>Revisão profunda das definições de conectores e níveis de corrente nominal (Cláusula 8);</li>
+    <li>Modificação conceitual da definição de "fio piloto" (*pilot wire*) para "função piloto" (*pilot function*);</li>
+    <li>Divisão da antiga Cláusula 9 para criar as Cláusulas 9 (conectores/plugues/tomadas) e 11 (requisitos gerais das estações EVSE);</li>
+    <li>Requisitos específicos para tomada, plugue, conector e entrada do veículo na Cláusula 9;</li>
+    <li>Requisitos genéricos de estações de recarga (EVSE) consolidados na Cláusula 11;</li>
+    <li>Remuneração estrutural dos anexos da norma;</li>
+    <li>Exclusão do antigo Anexo A e integração dos requisitos de cabos de recarga na nova Cláusula 10;</li>
+    <li>O antigo Anexo B torna-se o novo Anexo A, com caráter <strong>NORMATIVO</strong> para todos os sistemas que utilizam sinal piloto PWM via condutor piloto;</li>
+    <li>O antigo Anexo C torna-se o novo Anexo B (informativo), incorporando as tabelas de resistores de codificação de corrente em B.4;</li>
+    <li>Inclusão do novo Anexo C (informativo), descrevendo sistema alternativo de função piloto sem condutor adicional.</li>
+</ul>
+
+<div class="nota">
+    <strong>Datas normativas fixadas:</strong><br>
+    - Data limite de implementação nacional (dop): 2012-01-01.<br>
+    - Data limite para revogação de normas nacionais conflitantes (dow): 2014-04-01.
+</div>
+
+<hr>
+
+<h1>1. ESCOPO (SCOPE)</h1>
+<p>Esta parte da IEC 61851 aplica-se a equipamentos embarcados (*on-board*) e não-embarcados (*off-board*) destinados à recarga de veículos elétricos rodoviários em tensões nominais de alimentação AC até 1 000 V (conforme IEC 60038) e em tensões DC até 1 500 V, bem como para o fornecimento de energia a serviços auxiliares do veículo quando conectado à rede elétrica.</p>
+<p>O termo "Veículo Elétrico" (VE) compreende todos os veículos rodoviários, incluindo veículos elétricos híbridos plug-in (PHEV), que obtêm toda ou parte de sua energia motriz a partir de baterias recarregáveis embarcadas.</p>
+<p>Os aspectos cobertos abrangem: características e condições de operação do equipamento de alimentação (EVSE) e da conexão ao veículo; segurança elétrica dos operadores e de terceiros; e características que devem ser atendidas pelo veículo em relação à EVSE AC/DC somente quando o VE estiver aterrado.</p>
+<p>Esta norma não se aplica a trólebus, veículos ferroviários, empilhadeiras industriais e veículos projetados primariamente para uso fora de estrada (*off-road*).</p>
+
+<hr>
+
+<h1>2. REFERÊNCIAS NORMATIVAS</h1>
+<p>Os seguintes documentos são indispensáveis para a aplicação desta norma:</p>
+<ul>
+    <li><strong>IEC 60038:2009:</strong> Tensões padrão nominais da IEC.</li>
+    <li><strong>IEC 60068-2-30 / 60068-2-75 / 60068-2-78:</strong> Ensaios ambientais (calor úmido, ensaios de impacto com martelo e regime estacionário).</li>
+    <li><strong>IEC 60309-1 / IEC 60309-2:</strong> Plugues, tomadas e acopladores para uso industrial.</li>
+    <li><strong>IEC 60364-4-41:2005:</strong> Instalações elétricas de baixa tensão — Proteção para garantir segurança contra choques elétricos.</li>
+    <li><strong>IEC 60529:1989:</strong> Graus de proteção providos por invólucros (Código IP).</li>
+    <li><strong>IEC 60664-1:2007:</strong> Coordenação de isolamento para equipamentos em sistemas de baixa tensão.</li>
+    <li><strong>IEC 60884-1 / IEC 60884-2-5:</strong> Plugues e tomadas para uso doméstico e análogo.</li>
+    <li><strong>IEC 60947-1 / IEC 60947-3 / IEC 60947-6-1:</strong> Dispositivos de manobra, seccionamento e contatores de baixa tensão.</li>
+    <li><strong>IEC 60950-1:2005:</strong> Equipamentos de tecnologia da informação — Segurança.</li>
+    <li><strong>IEC 60990:1999:</strong> Métodos de medição de corrente de toque e corrente no condutor de proteção.</li>
+    <li><strong>IEC 61000-6-1 / IEC 61000-6-3:</strong> Compatibilidade eletromagnética (EMC) — Imunidade e emissão para ambientes residenciais e comerciais.</li>
+    <li><strong>IEC 61008-1 / IEC 61009-1:</strong> Dispositivos diferenciais residuais (RCCBs e RCBOs).</li>
+    <li><strong>IEC 61180-1:1992:</strong> Técnicas de ensaio em alta tensão para equipamentos de baixa tensão.</li>
+    <li><strong>IEC 62196-1:2003:</strong> Plugues, tomadas, acopladores e entradas de veículos para recarga condutiva até 250 A AC e 400 A DC.</li>
+    <li><strong>ISO 6469-2 / ISO 6469-3:</strong> Veículos rodoviários elétricos — Especificações de segurança e proteção contra perigos elétricos.</li>
+    <li><strong>SAE J1772:2010:</strong> Práticas recomendadas: Acoplador de recarga condutiva para veículos elétricos e híbridos plug-in.</li>
+</ul>
+
+<hr>
+
+<h1>3. TERMOS E DEFINIÇÕES</h1>
+<p>Para os efeitos desta norma, aplicam-se as seguintes definições:</p>
+
+<p><span class="termo">3.1 Isolação básica (basic insulation):</span> Isolação de partes vivas perigosas que provê proteção básica contra choque elétrico.</p>
+
+<p><span class="termo">3.2 Conjunto de cabo (cable assembly):</span> Item de equipamento utilizado para estabelecer a conexão entre o VE e a tomada da EVSE (Casos A e B) ou ao carregador fixo (Caso C). Inclui o cabo flexível e os conectores/plugues.</p>
+
+<p><span class="termo">3.3 Carregador (charger):</span> Conversor de potência que desempenha as funções necessárias para recarga da bateria de tração.</p>
+<ul>
+    <li><strong>3.3.1 Carregador Classe I:</strong> Carregador com isolação básica para proteção básica e ligação equipotencial de proteção (aterramento) para proteção contra falhas.</li>
+    <li><strong>3.3.2 Carregador Classe II:</strong> Carregador com isolação dupla ou reforçada, sem provisão de aterramento de proteção.</li>
+    <li><strong>3.3.3 Carregador Off-Board:</strong> Carregador conectado à instalação predial e localizado fora do veículo, entregando corrente contínua diretamente ao VE.</li>
+    <li><strong>3.3.4 Carregador On-Board:</strong> Carregador montado diretamente dentro do veículo e projetado para operar a partir de alimentação AC.</li>
+</ul>
+
+<p><span class="termo">3.4 Recarga (charging):</span> Todas as funções necessárias para condicionar a tensão e corrente da rede AC a níveis regulados para carregar a bateria do VE.</p>
+
+<p><span class="termo">3.6 Condutor piloto de controle (control pilot):</span> Condutor de controle no conjunto de cabo que interliga a caixa de controle ou EVSE ao terra do VE através do circuito de controle do veículo para desempenhar funções de sinalização e segurança.</p>
+
+<p><span class="termo">3.7 Terminal de terra (earth terminal):</span> Ponto de conexão acessível para todas as partes condutivas expostas eletricamente interligadas.</p>
+
+<p><span class="termo">3.8 Veículo elétrico (EV):</span> Qualquer veículo rodoviário impulsionado por motor elétrico que consome corrente de baterias recarregáveis ou outros dispositivos de armazenamento de energia.</p>
+
+<p><span class="termo">3.9 Equipamento de alimentação de VE (EVSE):</span> Conjunto completo de condutores (fase, neutro e PE), acopladores, plugues, tomadas e gabinetes destinados a transferir energia da instalação predial ao VE.</p>
+
+<p><span class="termo">3.11 Caixa de controle no cabo (in-cable control box - IC-CPD):</span> Dispositivo incorporado ao conjunto de cabo (Modo 2) que executa funções de controle piloto e segurança (incluindo RCD).</p>
+
+<p><span class="termo">3.14 Dispositivo de retenção (retaining device):</span> Dispositivo mecânico que mantém o plugue ou conector devidamente acoplado e impede desconexões sob carga não intencionais.</p>
+
+<p><span class="termo">3.15 Acoplador de veículo (vehicle coupler):</span> Meio que viabiliza a conexão manual entre um cabo flexível e o VE. Composto pelo conector do veículo e pela entrada do veículo (*inlet*).</p>
+
+<p><span class="termo">3.17 Função piloto (pilot function):</span> Qualquer meio, eletrônico ou mecânico, que assegura as condições relativas à segurança ou transmissão de dados exigidas para o modo de operação.</p>
+
+<p><span class="termo">3.18 Função de proximidade (proximity function):</span> Meio elétrico ou mecânico em um acoplador para indicar a presença do conector e sua capacidade de corrente ao veículo e à estação.</p>
+
+<p><span class="termo">3.20 Dispositivo diferencial residual (RCD):</span> Dispositivo de manobra mecânica projetado para abrir contatos quando a corrente diferencial residual atinge um valor especificado (proteção contra choque e fuga de corrente).</p>
+
+<hr>
+
+<h1>4. REQUISITOS GERAIS</h1>
+<p>O VE deve ser conectado à EVSE de tal forma que, em condições normais de operação, a transferência condutiva de energia funcione com total segurança contra riscos térmicos, mecânicos e elétricos.</p>
+
+<hr>
+
+<h1>5. VALORES NOMINAIS DE TENSÃO AC</h1>
+<p>A tensão nominal de alimentação para equipamentos de recarga AC é de até 1 000 V. Os equipamentos devem operar corretamente dentro de uma faixa de <strong>&plusmn;10%</strong> da tensão nominal padrão. A frequência nominal deve ser 50 Hz &plusmn; 1% ou 60 Hz &plusmn; 1%.</p>
+
+<hr>
+
+<h1>6. REQUISITOS GERAIS DO SISTEMA E INTERFACE</h1>
+
+<h2>6.1 Modos de Recarga de Veículos Elétricos</h2>
+<p>Um dispositivo de corrente residual (RCD) com características no mínimo equivalentes ao <strong>Tipo A</strong> (conforme IEC 61008-1 / 61009-1) associado a proteção contra sobrecorrente é obrigatório para todos os modos de recarga:</p>
+
+<ul>
+    <li><strong>Modo 1:</strong> Conexão do VE à rede AC utilizando tomadas padrão domésticas que não excedam 16 A e 250 V monofásico ou 480 V trifásico, utilizando os condutores de potência e terra de proteção. <em>(Proibido nos EUA; exige RCD obrigatório no cabo na Alemanha).</em></li>
+    <li><strong>Modo 2:</strong> Conexão à rede AC não excedendo 32 A e 250 V monofásico ou 480 V trifásico, utilizando tomadas padronizadas, provido de condutores de potência, terra de proteção, função piloto de controle e sistema de proteção RCD integrado no cabo (IC-CPD) a até 0,3 m do plugue.</li>
+    <li><strong>Modo 3:</strong> Conexão do VE à rede AC utilizando estação de recarga dedicada (EVSE) permanentemente conectada à rede elétrica, onde a função piloto estende-se até o controlador da própria EVSE.</li>
+    <li><strong>Modo 4:</strong> Conexão do VE utilizando carregador off-board de corrente contínua (DC), onde a função de controle estende-se ao equipamento permanentemente conectado à rede.</li>
+</ul>
+
+<h2>6.3 Tipos de Conexão Mecânica por Cabo (Casos A, B e C)</h2>
+
+<h3>Caso "A": Conexão com cabo permanentemente fixado ao VE</h3>
+<p>A conexão de um VE à rede AC utilizando cabo de alimentação e plugue permanentemente fixados ao veículo elétrico.</p>
+<div class="figura-box">
+    <img src="figuras/figura_1.png" alt="Figura 1 - Conexao Caso A">
+    <div class="figura-caption">Figura 1 — Conexão Caso "A" (Cabo permanentemente fixado ao VE)</div>
+</div>
+
+<h3>Caso "B": Conexão com conjunto de cabo destacável</h3>
+<p>A conexão de um VE à rede AC utilizando um conjunto de cabo destacável com conector de veículo e plugue para conexão na EVSE.</p>
+<div class="figura-box">
+    <img src="figuras/figura_2.png" alt="Figura 2 - Conexao Caso B">
+    <div class="figura-caption">Figura 2 — Conexão Caso "B" (Conjunto de cabo destacável em ambas as pontas)</div>
+</div>
+
+<h3>Caso "C": Conexão com cabo permanentemente fixado à EVSE</h3>
+<p>A conexão de um VE à rede AC utilizando cabo de alimentação e conector de veículo permanentemente fixados ao equipamento de alimentação (EVSE). Obrigatório para recarga em Modo 4 (DC).</p>
+<div class="figura-box">
+    <img src="figuras/figura_3.png" alt="Figura 3 - Conexao Caso C">
+    <div class="figura-caption">Figura 3 — Conexão Caso "C" (Cabo permanentemente fixado à estação EVSE)</div>
+</div>
+
+<div class="nota">
+    <strong>6.3.2 Proibição de Extensões de Cabo:</strong> É estritamente proibido o uso de extensões de cabo ou conjuntos secundários de cabos. O cabo de recarga deve ser uma peça única.
+</div>
+
+<h2>6.4 Funções nos Modos 2, 3 e 4</h2>
+<p><strong>Funções Obrigatórias:</strong></p>
+<ol>
+    <li>Verificação de que o veículo está corretamente conectado;</li>
+    <li>Monitoramento contínuo da continuidade do condutor de terra de proteção (PE);</li>
+    <li>Energização do circuito somente após o correto estabelecimento do circuito piloto;</li>
+    <li>Desenergização imediata da alimentação caso a função piloto seja interrompida ou falhe.</li>
+</ol>
+
+<hr>
+
+<h1>7. PROTEÇÃO CONTRA CHOQUE ELÉTRICO</h1>
+<p>Partes vivas perigosas não podem ser acessíveis em hipótese alguma. O grau de proteção mínimo contra acessibilidade deve atender a <strong>IPXXB</strong> (dedo de ensaio padronizado).</p>
+
+<h2>7.2 Descarga de Capacitores (Energia Armazenada)</h2>
+<p>Em até <strong>1 segundo</strong> após a desconexão do VE ou da EVSE da rede de alimentação:</p>
+<ul>
+    <li>A tensão entre partes condutivas acessíveis e o terra deve ser menor ou igual a <strong>42,4 V de pico (ou 60 V DC)</strong>;</li>
+    <li>A energia armazenada residual disponível deve ser menor que <strong>20 Joules</strong>.</li>
+</ul>
+
+<h2>7.4 Medidas Suplementares com RCD</h2>
+<p>Para sistemas aterrados, a EVSE deve incorporar um dispositivo diferencial residual (RCD) com sensibilidade <strong>I<sub>&Delta;n</sub> &le; 30 mA</strong>, no mínimo do <strong>Tipo A</strong> (capaz de detectar correntes de fuga AC senoidais e correntes contínuas pulsantes).</p>
+
+<hr>
+
+<h1>8. CONEXÃO ENTRE A ALIMENTAÇÃO E O VEÍCULO ELÉTRICO</h1>
+
+<h2>8.2 Sequenciamento Mecânico de Contatos (Regra de Ouro)</h2>
+<p>Por motivos mandatórios de segurança elétrica contra arcos e choques:</p>
+<ul>
+    <li><strong>Durante a Conexão:</strong> O contato de terra de proteção (<strong>PE</strong>) deve fechar <em>primeiro</em>, e o contato de controle piloto (<strong>CP</strong>) deve fechar <em>por último</em>.</li>
+    <li><strong>Durante a Desconexão:</strong> O contato de controle piloto (<strong>CP</strong>) deve abrir <em>primeiro</em>, e o contato de terra de proteção (<strong>PE</strong>) deve abrir <em>por último</em>.</li>
+</ul>
+
+<h2>Tabela 1 — Visão Geral das Opções de Interface e Capacidades de Contato</h2>
+<table>
+    <tr>
+        <th>Contato</th>
+        <th>Interface Básica Monofásica</th>
+        <th>Interface Básica Trifásica</th>
+        <th>Tensão Máxima</th>
+        <th>Corrente Máxima</th>
+        <th>Função Elétrica</th>
+    </tr>
+    <tr><td><strong>4</strong></td><td>L1</td><td>L1</td><td>250 V / 480 V</td><td>32 A (até 70 A)</td><td>Condutor de Fase 1</td></tr>
+    <tr><td><strong>5</strong></td><td>—</td><td>L2</td><td>480 V</td><td>32 A (até 63 A)</td><td>Condutor de Fase 2</td></tr>
+    <tr><td><strong>6</strong></td><td>—</td><td>L3</td><td>480 V</td><td>32 A (até 63 A)</td><td>Condutor de Fase 3</td></tr>
+    <tr><td><strong>7</strong></td><td>N</td><td>N</td><td>250 V / 480 V</td><td>32 A (até 70 A)</td><td>Condutor de Neutro</td></tr>
+    <tr><td><strong>8</strong></td><td>PE</td><td>PE</td><td>Classificado p/ falta</td><td>Classificado p/ falta</td><td>Terra de Proteção</td></tr>
+    <tr><td><strong>9</strong></td><td>CP</td><td>CP</td><td>30 V</td><td>2 A</td><td>Controle Piloto (Control Pilot)</td></tr>
+    <tr><td><strong>13</strong></td><td>PP</td><td>PP</td><td>30 V</td><td>2 A</td><td>Detecção de Proximidade (Proximity Pilot)</td></tr>
+</table>
+
+<hr>
+
+<h1>11. REQUISITOS CONSTRUTIVOS DA ESTAÇÃO EVSE</h1>
+
+<h2>11.3 Graus de Proteção (Código IP)</h2>
+<table>
+    <tr><th>Condição de Uso</th><th>Elemento</th><th>Grau de Proteção Mínimo</th></tr>
+    <tr><td>Uso Interno (*Indoor*)</td><td>Conector acoplado na entrada do VE</td><td><strong>IP21</strong></td></tr>
+    <tr><td>Uso Interno (*Indoor*)</td><td>Plugue acoplado na tomada da EVSE</td><td><strong>IP21</strong></td></tr>
+    <tr><td>Uso Externo (*Outdoor*)</td><td>Conector acoplado na entrada do VE</td><td><strong>IP44</strong></td></tr>
+    <tr><td>Uso Externo (*Outdoor*)</td><td>Plugue acoplado na tomada da EVSE</td><td><strong>IP44</strong></td></tr>
+    <tr><td>Posição de Estrada (*Road*)</td><td>Entrada do VE com tampa fechada</td><td><strong>IP55</strong></td></tr>
+    <tr><td>Desacoplado (*Unmated*)</td><td>Conector ou tomada abertos</td><td><strong>IP24</strong></td></tr>
+</table>
+
+<h2>11.11 Ensaio de Impacto Mecânico</h2>
+<p>O corpo da EVSE deve suportar impacto mecânico sem degradação do grau IP nem deformação que toque partes vivas. O teste utiliza esfera de aço maciça de <strong>500 g &plusmn; 25 g</strong> caindo de altura vertical de <strong>1,3 metros</strong> (IEC 60068-2-75).</p>
+
+<hr>
+
+<div class="anexo-header">
+    <h2>ANEXO A (NORMATIVO)</h2>
+    <strong>Função Piloto Através de Circuito de Controle Piloto com Modulação PWM e Condutor Piloto</strong>
+</div>
+
+<h3>A.2 Circuito de Controle Piloto Típico</h3>
+<div class="figura-box">
+    <img src="figuras/figura_a1.png" alt="Figura A.1 - Circuito Tipico de Controle Piloto">
+    <div class="figura-caption">Figura A.1 — Circuito típico de controle piloto (IEC 61851-1)</div>
+</div>
+
+<h3>Circuito de Controle Piloto Simplificado</h3>
+<div class="figura-box">
+    <img src="figuras/figura_a2.png" alt="Figura A.2 - Circuito de Controle Piloto Simplificado">
+    <div class="figura-caption">Figura A.2 — Circuito de controle piloto simplificado (máximo 16 A monofásico)</div>
+</div>
+
+<h3>Tabela A.1 — Parâmetros do Circuito da Estação (EVSE)</h3>
+<table>
+    <tr><th>Parâmetro</th><th>Símbolo</th><th>Valor Nominal</th><th>Unidade</th></tr>
+    <tr><td>Tensão positiva em circuito aberto</td><td>V<sub>och</sub></td><td>12,00 (&plusmn;0,6)</td><td>V</td></tr>
+    <tr><td>Tensão negativa em circuito aberto</td><td>V<sub>ocl</sub></td><td>-12,00 (&plusmn;0,6)</td><td>V</td></tr>
+    <tr><td>Frequência do oscilador</td><td>F<sub>o</sub></td><td>1 000 (&plusmn;0,5%)</td><td>Hz</td></tr>
+    <tr><td>Tempo de subida máximo (10% a 90%)</td><td>T<sub>rg</sub></td><td>2</td><td>&mu;s</td></tr>
+    <tr><td>Tempo de descida máximo (90% a 10%)</td><td>T<sub>fg</sub></td><td>2</td><td>&mu;s</td></tr>
+    <tr><td>Tempo de acomodação para 95% estável</td><td>T<sub>sg</sub></td><td>3</td><td>&mu;s</td></tr>
+    <tr><td>Resistência equivalente da fonte</td><td>R<sub>1</sub></td><td>1 000 &plusmn; 3%</td><td>&Omega;</td></tr>
+</table>
+
+<h3>Tabela A.2 — Parâmetros do Circuito no Veículo Elétrico</h3>
+<table>
+    <tr><th>Parâmetro</th><th>Símbolo</th><th>Valor Nominal</th><th>Unidade</th></tr>
+    <tr><td>Resistor permanente do VE</td><td>R<sub>2</sub></td><td>2,74 k (&plusmn;3%)</td><td>&Omega;</td></tr>
+    <tr><td>Resistor comutável s/ ventilação</td><td>R<sub>3</sub></td><td>1,3 k (&plusmn;3%)</td><td>&Omega;</td></tr>
+    <tr><td>Resistor comutável c/ ventilação</td><td>R<sub>3</sub></td><td>270 (&plusmn;3%)</td><td>&Omega;</td></tr>
+    <tr><td>Resistência total s/ ventilação (R2 || R3)</td><td>R<sub>e</sub></td><td>882 (&plusmn;3%)</td><td>&Omega;</td></tr>
+    <tr><td>Resistência total c/ ventilação (R2 || R3)</td><td>R<sub>e</sub></td><td>246 (&plusmn;3%)</td><td>&Omega;</td></tr>
+    <tr><td>Queda de tensão direta do diodo D1</td><td>V<sub>d</sub></td><td>0,7 (&plusmn;0,15)</td><td>V</td></tr>
+    <tr><td>Capacitância de entrada máxima</td><td>C<sub>v</sub></td><td>2 400</td><td>pF</td></tr>
+</table>
+
+<h3>Tabela A.3 — Estados do Veículo e Funções Piloto</h3>
+<table>
+    <tr><th>Estado</th><th>VE Conectado</th><th>Chave S2</th><th>Recarga</th><th>Tensão Positiva V<sub>A</sub></th><th>Significado</th></tr>
+    <tr><td><strong>A</strong></td><td>Não</td><td>Aberta</td><td>Não</td><td>12 V estático (&plusmn;1 V)</td><td>VE desconectado.</td></tr>
+    <tr><td><strong>B</strong></td><td>Sim</td><td>Aberta</td><td>Não</td><td>9 V (&plusmn;1 V)</td><td>VE conectado; R2 detectado; não pronto.</td></tr>
+    <tr><td><strong>C</strong></td><td>Sim</td><td>Fechada</td><td>Pronto</td><td>6 V (&plusmn;1 V)</td><td>VE pronto; sem ventilação exigida.</td></tr>
+    <tr><td><strong>D</strong></td><td>Sim</td><td>Fechada</td><td>Pronto</td><td>3 V (&plusmn;1 V)</td><td>VE pronto; com ventilação exigida.</td></tr>
+    <tr><td><strong>E</strong></td><td>Sim</td><td>Aberta</td><td>Não</td><td>0 V</td><td>Falha, curto CP-PE ou terra desconectado.</td></tr>
+    <tr><td><strong>F</strong></td><td>Sim</td><td>Aberta</td><td>Não</td><td>-12 V contínuo</td><td>EVSE não disponível ou com falha.</td></tr>
+</table>
+
+<h3>A.3 Sequência Passo a Passo do Handshake e Formas de Onda</h3>
+<div class="figura-box">
+    <img src="figuras/figura_a3.png" alt="Figura A.3 - Ciclo de Recarga Tipico sob Condicoes Normais">
+    <div class="figura-caption">Figura A.3 — Ciclo de recarga típico sob condições normais de operação (Formas de onda e temporizações)</div>
+</div>
+
+<h3>Tabela A.4 — Descrição das Sequências de Conexão Mostradas na Figura A.3</h3>
+<table>
+    <tr><th>Passo</th><th>Estado</th><th>Condições e Ações da Sequência</th></tr>
+    <tr><td>1</td><td><strong>A</strong></td><td>Veículo desconectado. Tensão em V<sub>A</sub> é +12 V DC constante.</td></tr>
+    <tr><td>2</td><td><strong>B</strong></td><td>Cabo conectado ao VE e EVSE. Divisor com R2 abaixa V<sub>A</sub> para +9 V (B1 sem PWM ou B2 com PWM).</td></tr>
+    <tr><td>3</td><td><strong>B</strong></td><td>EVSE pronta gera PWM de 1 kHz informando corrente pelo Duty Cycle. Diodo D1 confirma VE real (-12 V retido).</td></tr>
+    <tr><td>4</td><td><strong>B &rarr; C/D</strong></td><td>VE fecha a chave S2. Tensão de pico cai para +6 V (Estado C) ou +3 V (Estado D).</td></tr>
+    <tr><td>5</td><td><strong>C/D</strong></td><td>EVSE detecta +6V/+3V e fecha os contatores de potência AC energizando o cabo.</td></tr>
+    <tr><td>6</td><td><strong>C/D</strong></td><td>OBC do carro consome corrente respeitando o limite do Duty Cycle.</td></tr>
+    <tr><td>7</td><td><strong>C/D</strong></td><td>Ajuste dinâmico de potência pela EVSE via variação de Duty Cycle (smart charging).</td></tr>
+    <tr><td>8</td><td><strong>C/D</strong></td><td>Fim da carga decidido pelo veículo (bateria cheia).</td></tr>
+    <tr><td>9</td><td><strong>C/D &rarr; B</strong></td><td>Veículo abre chave S2 (tensão retorna para +9 V) ou botão do conector é acionado.</td></tr>
+    <tr><td>10</td><td><strong>B</strong></td><td>EVSE detecta Estado B e <strong>abre os contatores em menos de 100 ms</strong>.</td></tr>
+    <tr><td>11</td><td><strong>A</strong></td><td>Remoção completa do conector; tensão retorna para +12 V; trava mecânica é liberada.</td></tr>
+</table>
+
+<h3>Tabelas A.5 e A.6 — Conversão Duty Cycle (%) vs. Corrente Máxima (A)</h3>
+<table>
+    <tr><th>Faixa de Duty Cycle</th><th>Corrente Máxima Permitida</th><th>Equação / Comportamento</th></tr>
+    <tr><td>Duty &lt; 3%</td><td>0 A</td><td>Recarga proibida.</td></tr>
+    <tr><td>3% &le; Duty &le; 7%</td><td>Digital</td><td>Comunicação digital requerida (ex: ISO 15118 / DC).</td></tr>
+    <tr><td>7% &lt; Duty &lt; 8%</td><td>0 A</td><td>Recarga proibida.</td></tr>
+    <tr><td>8% &le; Duty &le; 10%</td><td>6 A</td><td>Corrente fixa de 6 A.</td></tr>
+    <tr><td>10% &lt; Duty &le; 85%</td><td>6 A a 51 A</td><td><strong>Corrente [A] = Duty (%) &times; 0,6</strong></td></tr>
+    <tr><td>85% &lt; Duty &le; 96%</td><td>51 A a 80 A</td><td><strong>Corrente [A] = (Duty (%) - 64) &times; 2,5</strong></td></tr>
+    <tr><td>96% &lt; Duty &le; 97%</td><td>80 A</td><td>80 A máximo.</td></tr>
+    <tr><td>Duty &gt; 97%</td><td>0 A</td><td>Inválido / Recarga proibida.</td></tr>
+</table>
+
+<h3>Tabela A.7 — Temporizações Críticas de Segurança</h3>
+<ul>
+    <li><strong>t<sub>ACon</sub> &le; 3 s:</strong> Tempo para fechar a contatora após detecção do Estado C ou D;</li>
+    <li><strong>t<sub>ACoff1</sub> &le; 100 ms:</strong> <em>Tempo máximo para abertura da contatora AC da EVSE após abertura da chave S2;</em></li>
+    <li><strong>t<sub>proximity</sub> &le; 100 ms:</strong> <em>Tempo máximo para abertura da contatora caso o contato de proximidade (PP) abra;</em></li>
+    <li><strong>t<sub>ichange</sub> &le; 5 s:</strong> Tempo para o VE ajustar a drenagem de corrente após variação de Duty Cycle.</li>
+</ul>
+
+<hr>
+
+<div class="anexo-header">
+    <h2>ANEXO B (INFORMATIVO)</h2>
+    <strong>Exemplos de Diagramas de Circuito para Acopladores Básicos e Universais</strong>
+</div>
+
+<h3>Esquemáticos dos Modos de Recarga</h3>
+
+<div class="figura-box">
+    <img src="figuras/figura_b1.png" alt="Figura B.1 - Modo 1 Caso B">
+    <div class="figura-caption">Figura B.1 — Modo 1 Caso B utilizando acoplador monofásico básico</div>
+</div>
+
+<div class="figura-box">
+    <img src="figuras/figura_b2.png" alt="Figura B.2 - Modo 2 Caso B">
+    <div class="figura-caption">Figura B.2 — Modo 2 Caso B utilizando acoplador monofásico básico com controle no cabo</div>
+</div>
+
+<div class="figura-box">
+    <img src="figuras/figura_b3.png" alt="Figura B.3 - Modo 3 Caso B">
+    <div class="figura-caption">Figura B.3 — Modo 3 Caso B utilizando acoplador monofásico básico e estação EVSE</div>
+</div>
+
+<div class="figura-box">
+    <img src="figuras/figura_b4.png" alt="Figura B.4 - Modo 3 Caso C">
+    <div class="figura-caption">Figura B.4 — Modo 3 Caso C utilizando acoplador monofásico básico com cabo fixo na EVSE</div>
+</div>
+
+<div class="figura-box">
+    <img src="figuras/figura_b5.png" alt="Figura B.5 - Modo 3 Caso B sem S3">
+    <div class="figura-caption">Figura B.5 — Modo 3 Caso B utilizando acoplador sem chave de botão S3</div>
+</div>
+
+<h3>Codificação de Corrente no Pino PP (Proximity Pilot)</h3>
+<div class="figura-box">
+    <img src="figuras/figura_b6.png" alt="Figura B.6 - Diagrama de Codificacao do Cabo">
+    <div class="figura-caption">Figura B.6 — Diagrama para codificação de capacidade de corrente do cabo (Pino PP)</div>
+</div>
+
+<h3>Tabela B.3 — Codificação de Resistores do Cabo de Recarga (Pino PP)</h3>
+<table>
+    <tr><th>Capacidade de Corrente</th><th>Resistência Nominal R<sub>c</sub> (&plusmn;3%)</th><th>Potência Nominal Mínima</th></tr>
+    <tr><td><strong>13 A</strong></td><td>1 500 &Omega; (1,5 k&Omega;)</td><td>&ge; 0,5 W</td></tr>
+    <tr><td><strong>20 A</strong></td><td>680 &Omega;</td><td>&ge; 0,5 W</td></tr>
+    <tr><td><strong>32 A</strong></td><td>220 &Omega;</td><td>&ge; 0,5 W</td></tr>
+    <tr><td><strong>63 A / 70 A</strong></td><td>100 &Omega;</td><td>&ge; 0,5 W</td></tr>
+</table>
+
+<h3>Conexão Modo 4 (DC Rápida)</h3>
+<div class="figura-box">
+    <img src="figuras/figura_b7.png" alt="Figura B.7 - Modo 4 Caso C">
+    <div class="figura-caption">Figura B.7 — Modo 4 Caso C utilizando acoplador veicular universal</div>
+</div>
+
+<hr>
+
+<div class="anexo-header">
+    <h2>ANEXO C (INFORMATIVO)</h2>
+    <strong>Exemplo de Método que Prover Função Piloto Equivalente sem Fio Adicional</strong>
+</div>
+
+<div class="figura-box">
+    <img src="figuras/figura_c1.png" alt="Figura C.1 - Funcao Piloto por Corrente Portadora">
+    <div class="figura-caption">Figura C.1 — Exemplo de função piloto sem condutor suplementar (por portadora de 110 kHz)</div>
+</div>
+
+<hr>
+
+<div class="anexo-header">
+    <h2>ANEXOS EUROPEUS (ZA, ZB E ZC)</h2>
+</div>
+<ul>
+    <li><strong>Anexo ZA (Normativo):</strong> Relação de normas de referência internacionais IEC com suas correspondentes normas europeias EN/HD harmonizadas.</li>
+    <li><strong>Anexo ZB (Normativo):</strong> Condições nacionais específicas (Alemanha, Finlândia, Holanda).</li>
+    <li><strong>Anexo ZC (Informativo):</strong> Desvios tipo A (Reino Unido - série BS 1363).</li>
+</ul>
+
+</body>
+</html>

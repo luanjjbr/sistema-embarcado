@@ -1,0 +1,12 @@
+Estado (Tabela II),Tensão (V_A),Chaves Fechadas,Chaves Abertas
+AX Nominal,12 V,(Nenhuma),"S7, S8, S9.0, S9.1, S9.2, S10.0, S10.2, S11.0, S11.1, S11.2, S12.0, S12.1, S12.2"
+BX Limite Superior,10 V (9.95 V),"S7, S9.0","S8, S9.1, S9.2, S10.0, S10.2, S11.0, S11.1, S11.2, S12.0, S12.1, S12.2"
+BX Nominal,9 V (8.92 V),"S7, S9.1","S8, S9.0, S9.2, S10.0, S10.2, S11.0, S11.1, S11.2, S12.0, S12.1, S12.2"
+BX Limite Inferior,8 V (7.92 V),"S7, S9.2","S8, S9.0, S9.1, S10.0, S10.2, S11.0, S11.1, S11.2, S12.0, S12.1, S12.2"
+CX Limite Superior,7 V (6.93 V),"S7, S9.1, S10.2, S11.0","S8, S9.0, S9.2, S10.0, S11.1, S11.2, S12.0, S12.1, S12.2"
+CX Nominal,6 V (5.92 V),"S7, S9.1, S10.2, S11.1","S8, S9.0, S9.2, S10.0, S11.0, S11.2, S12.0, S12.1, S12.2"
+CX Limite Inferior,5 V (4.90 V),"S7, S9.1, S10.2, S11.2","S8, S9.0, S9.2, S10.0, S11.0, S11.1, S12.0, S12.1, S12.2"
+DX Limite Superior,4 V (3.91 V),"S7, S9.1, S10.0, S12.0","S8, S9.0, S9.2, S10.2, S11.0, S11.1, S11.2, S12.1, S12.2"
+DX Nominal,3 V (2.91 V),"S7, S9.1, S10.0, S12.1","S8, S9.0, S9.2, S10.2, S11.0, S11.1, S11.2, S12.0, S12.2"
+DX Limite Inferior,2 V (1.96 V),"S7, S9.1, S10.0, S12.2","S8, S9.0, S9.2, S10.2, S11.0, S11.1, S11.2, S12.0, S12.1"
+E Limite Superior,1 V (0.97 V),"S7, S8","S9.0, S9.1, S9.2, S10.0, S10.2, S11.0, S11.1, S11.2, S12.0, S12.1, S12.2"
