@@ -15,6 +15,11 @@ O assistente e os agentes operando neste repositório devem seguir rigorosamente
    > [!IMPORTANT]
    > É **TERMINANTEMENTE PROIBIDO** invocar ferramentas de escrita (`write_to_file`, `replace_file_content`, etc.) no mesmo turno em que a proposta é apresentada. O agente deve finalizar sua resposta e aguardar uma nova mensagem do usuário autorizando expressamente a alteração (ex: *"Pode aplicar"*, *"Aprovado"*, *"Prossiga"*).
 
+### ❓ Regra de Ouro: Proibição de Suposições e Consulta Ativa Obrigatória
+> [!CAUTION]
+> Se o assistente ou agente tiver qualquer dúvida, incerteza, ambiguidade ou ausência de dados técnicos (pinos, esquemas, tolerâncias elétricas, decisões de projeto), é **ESTRITAMENTE PROIBIDO presumir, supor ou deduzir**.
+> O agente DEVE pausar imediatamente e formular perguntas claras ao usuário, solicitando confirmação antes de qualquer tomada de decisão.
+
 ---
 
 ## 🇧🇷 1. Idioma e Comunicação Obrigatória
@@ -54,11 +59,14 @@ sistema-embarcado/
 │   └── tests/                     # Testes automatizados com Robot Framework e Python
 │
 ├── knowledge/                     # 📚 Base de Conhecimento Modularizada
-│   ├── 01_governanca.md           # Metodologia Human-in-the-Loop, turnos e commits
+│   ├── 01_governanca.md           # Metodologia Human-in-the-Loop, anti-suposição e commits
 │   ├── 02_hardware_avr.md         # Registradores AVR, Bandgap 1.1V e limite de 2KB SRAM
 │   ├── 03_freertos_guidelines.md  # Dimensionamento de Stacks (128 words), vTaskDelay e filas
+│   ├── 04_freertos_mastering_reference.md # Kernel FreeRTOS, IPC, semáforos, ISR e heap 1..5
+│   ├── 05_fundamentos_linguagem_c.md      # Head First C, modelo de memória, ponteiros e structs
 │   └── domains/                   # 🎯 Regras Técnicas por Domínio Funcional
 │       ├── emulador_pp_iec62196.md# Norma IEC 62196-2, tabela de resistores e Break-Before-Make
+│       ├── normas_evse_iec61851_iec62196.md # Normas de recarga Modo 3, PWM CP, PP e temporizações
 │       ├── protocolo_serial_cli.md# Especificação do parser serial CLI (cabo 0..6, OK, ERRO)
 │       └── aulas_academicas.md    # Resumo conceitual dos módulos práticos (Aulas 1 a 9)
 │
@@ -77,9 +85,11 @@ Ao trabalhar em demandas específicas, consulte o módulo correspondente:
 
 | Módulo | Arquivo | Finalidade e Conteúdo |
 | :--- | :--- | :--- |
-| **Governança & Git** | [`knowledge/01_governanca.md`](knowledge/01_governanca.md) | Parada obrigatória em turno separado, fluxo de trabalho e commits padronizados. |
+| **Governança & Git** | [`knowledge/01_governanca.md`](knowledge/01_governanca.md) | Parada obrigatória, consulta ativa (anti-suposição) e commits padronizados. |
 | **Hardware AVR** | [`knowledge/02_hardware_avr.md`](knowledge/02_hardware_avr.md) | Registradores de baixo nível, Bandgap 1.1V e restrições de SRAM (2 KB). |
-| **FreeRTOS** | [`knowledge/03_freertos_guidelines.md`](knowledge/03_freertos_guidelines.md) | Stacks de 128 words, temporização não-bloqueante (`vTaskDelay`) e tarefas preemptivas. |
+| **FreeRTOS Guidelines** | [`knowledge/03_freertos_guidelines.md`](knowledge/03_freertos_guidelines.md) | Stacks de 128 words, temporização não-bloqueante (`vTaskDelay`) e tarefas preemptivas. |
+| **FreeRTOS Reference** | [`knowledge/04_freertos_mastering_reference.md`](knowledge/04_freertos_mastering_reference.md) | Ciclos de tarefa, Filas, Mutex/Priority Inheritance, Heap 1-5 e APIs `FromISR`. |
+| **Fundamentos de C** | [`knowledge/05_fundamentos_linguagem_c.md`](knowledge/05_fundamentos_linguagem_c.md) | Modelo de memória (Stack/Heap/BSS), ponteiros, `volatile`, structs e segurança. |
 
 ---
 
@@ -90,6 +100,7 @@ Regras técnicas e peculiaridades funcionais específicas do hardware e do firmw
 | Domínio | Arquivo de Referência | Resumo Técnico |
 | :--- | :--- | :--- |
 | **Pino PP (IEC 62196-2)** | [`knowledge/domains/emulador_pp_iec62196.md`](knowledge/domains/emulador_pp_iec62196.md) | Chaves S1 a S6, tabela de resistores (4700R a 47R) e intertravamento Break-Before-Make. |
+| **Normas EVSE Modo 3** | [`knowledge/domains/normas_evse_iec61851_iec62196.md`](knowledge/domains/normas_evse_iec61851_iec62196.md) | IEC 61851-1/62196-2, PWM CP (±12V), estados A..E, diodo D1, Duty vs Corrente, corte <100ms. |
 | **Protocolo Serial CLI** | [`knowledge/domains/protocolo_serial_cli.md`](knowledge/domains/protocolo_serial_cli.md) | Comandos `cabo 0..6`, respostas `OK`/`ERRO`, baud rate 9600 / 115200 bps. |
 | **Aulas Práticas** | [`knowledge/domains/aulas_academicas.md`](knowledge/domains/aulas_academicas.md) | Referência e conceitos fundamentais das Aulas 1 a 9. |
 

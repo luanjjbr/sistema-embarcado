@@ -45,13 +45,16 @@ bool EmuladorCabo::ativarCanal(TipoCabo tipo)
     // 1. Intertravamento BREAK: Desliga fisicamente todas as chaves
     desligarTodos();
 
-    // 2. Se for estado ABERTO, encerra aqui (todas já estão LOW)
+    // 2. Micro-atraso de acomodação (turn-off delay de MOSFETs/optoacopladores)
+    delayMicroseconds(5);
+
+    // 3. Se for estado ABERTO, encerra aqui (todas já estão LOW)
     if (tipo == TipoCabo::ABERTO)
     {
         return true;
     }
 
-    // 3. Intertravamento MAKE: Liga apenas a chave do canal selecionado
+    // 4. Intertravamento MAKE: Liga apenas a chave do canal selecionado
     uint8_t indicePino = static_cast<uint8_t>(tipo) - 1;
 
     if (indicePino < 6)

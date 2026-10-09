@@ -7,13 +7,17 @@
   3. **Solicitação Expressa de Autorização:** Pedir explicitamente permissão ao usuário.
   4. **Parada Obrigatória:** Interromper a execução no turno corrente e aguardar a mensagem do usuário autorizando a escrita. Proibido chamar ferramentas de gravação no mesmo turno.
 
-## 2. Padrão de Versionamento (Conventional Commits)
+## 2. Princípio da Certeza e Consulta Ativa (Anti-Suposição)
+- **Tolerância Zero a Alucinações e Suposições:** Quando um conhecimento, especificação técnica, esquema de pinagem ou parâmetro de norma não estiver 100% claro ou disponível, o agente NÃO PODE presumir nada.
+- O agente DEVE interromper a resposta, expor os pontos de dúvida e perguntar diretamente ao usuário a decisão ou especificação a adotar.
+
+## 3. Padrão de Versionamento (Conventional Commits)
 - `feat:` Nova funcionalidade, aula prática ou driver de periférico;
 - `fix:` Correção de bug em firmware, pinagem ou temporização;
 - `docs:` Modificação em documentações técnicas e diagramas;
 - `refactor:` Refatoração de código sem alteração do comportamento externo;
 - `chore:` Manutenção em arquivos de build (`platformio.ini`, git, scripts).
 
-## 3. Idioma e Terminologia
+## 4. Idioma e Terminologia
 - Estritamente **Português do Brasil (pt-BR)** para explicações, mensagens de commit e documentações.
 - Preservação da terminologia técnica universal consolidada (*baud rate*, *buffer circular*, *break-before-make*, *stack overflow*, *task*, *mutex*, etc.).

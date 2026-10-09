@@ -124,3 +124,7 @@ audit/*.md
 # Logs e arquivos compactados
 *.log
 *.zip
+# --- LTspice (Simulacoes e Caches Binarios) ---
+*.raw
+*.op.raw
+*.db
