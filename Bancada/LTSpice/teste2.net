@@ -19,7 +19,7 @@ V4 S3 0 PULSE(0 5 6m 10u 10u 1.98m 20m)
 V5 S4 0 PULSE(0 5 9m 10u 10u 1.98m 20m)
 V6 S5 0 PULSE(0 5 12m 10u 10u 1.98m 20m)
 V7 S6 0 PULSE(0 5 15m 10u 10u 1.98m 20m)
-R7 PP V_EVSE 330
+R7 PP V_EVSE 470
 .tran 18m
 .meas TRAN V_PP_S1 FIND V(PP) AT=1m
 .meas TRAN V_PP_S2 FIND V(PP) AT=4m
@@ -27,12 +27,12 @@ R7 PP V_EVSE 330
 .meas TRAN V_PP_S4 FIND V(PP) AT=10m
 .meas TRAN V_PP_S5 FIND V(PP) AT=13m
 .meas TRAN V_PP_S6 FIND V(PP) AT=16m
-.meas TRAN R_PP_S1 PARAM (V_PP_S1 * 330) / (5 - V_PP_S1)
-.meas TRAN R_PP_S2 PARAM (V_PP_S2 * 330) / (5 - V_PP_S2)
-.meas TRAN R_PP_S3 PARAM (V_PP_S3 * 330) / (5 - V_PP_S3)
-.meas TRAN R_PP_S4 PARAM (V_PP_S4 * 330) / (5 - V_PP_S4)
-.meas TRAN R_PP_S5 PARAM (V_PP_S5 * 330) / (5 - V_PP_S5)
-.meas TRAN R_PP_S6 PARAM (V_PP_S6 * 330) / (5 - V_PP_S6)
+.meas TRAN R_PP_S1 PARAM (V_PP_S1 * 470) / (5 - V_PP_S1)
+.meas TRAN R_PP_S2 PARAM (V_PP_S2 * 470) / (5 - V_PP_S2)
+.meas TRAN R_PP_S3 PARAM (V_PP_S3 * 470) / (5 - V_PP_S3)
+.meas TRAN R_PP_S4 PARAM (V_PP_S4 * 470) / (5 - V_PP_S4)
+.meas TRAN R_PP_S5 PARAM (V_PP_S5 * 470) / (5 - V_PP_S5)
+.meas TRAN R_PP_S6 PARAM (V_PP_S6 * 470) / (5 - V_PP_S6)
 .model SW_PP SW(Ron=0.01 Roff=10Meg Vt=2.5)
 .backanno
 .end
