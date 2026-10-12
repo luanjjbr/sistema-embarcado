@@ -48,5 +48,29 @@
 #define PINO_CABO_S5    8    // S5:  100 Ohms (Cabo 63 A / 70 A)
 #define PINO_CABO_S6    9    // S6:   47 Ohms (Simulação de Falha / Curto)
 
+// ============================================================================
+// 4. LÓGICA DE ACIONAMENTO DOS RELÉS (5V)
+// ============================================================================
+// Nível lógico para o driver de relé (HIGH para NPN S8050 / LOW para optoacoplador invertido)
+#define NIVEL_RELE_ATIVO    HIGH
+#define NIVEL_RELE_INATIVO  LOW
+
+// ============================================================================
+// 5. PINOS DO EMULADOR DE VEÍCULO - PINO CP (IEC 61851-1 ANEXO A)
+// ============================================================================
+// Acionamento dos 10 relés de comutação de estados e tolerâncias operacionais
+#if defined(PLACA_MEGA) || defined(__AVR_ATmega2560__)
+    #define PINO_CP_S7      22   // S7: Conexão PE (Aberto = Estado AX, 12V)
+    #define PINO_CP_S8      23   // S8: Falha 120R direto ao PE (Fechado = Estado E, 1V)
+    #define PINO_CP_S9_1    24   // S9.1: Bypass 1870R -> 2740R (Estado BX Nominal, 9V)
+    #define PINO_CP_S9_2    25   // S9.2: Bypass 1870R+920R -> 1820R (Estado BX Limite Inf, 8V)
+    #define PINO_CP_S10_C   26   // S10.2: Habilita barramento do Estado C
+    #define PINO_CP_S10_D   27   // S10.1: Habilita barramento do Estado D
+    #define PINO_CP_S11_1   28   // S11.1: Bypass 422R -> 1301R (Estado CX Nominal, 6V)
+    #define PINO_CP_S11_2   29   // S11.2: Bypass 422R+392R -> 909R (Estado CX Limite Inf, 5V)
+    #define PINO_CP_S12_1   30   // S12.1: Bypass 178R -> 270R (Estado DX Nominal, 3V)
+    #define PINO_CP_S12_2   31   // S12.2: Bypass 178R+130R -> 140R (Estado DX Limite Inf, 2V)
+#endif
+
 #endif // CONFIG_HARDWARE_H
 

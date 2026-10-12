@@ -128,3 +128,7 @@ audit/*.md
 *.raw
 *.op.raw
 *.db
+
+# --- Obsidian (Estado Local de Workspace Individual) ---
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
