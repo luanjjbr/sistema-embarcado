@@ -16,6 +16,10 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * 🔹 **`Aula7_DataLogger_Final/`**: Modelo final consolidado com buffer contínuo (sem fragmentação de heap), amostragem em milivolts, integridade CRC-16 e telemetria periódica.
   * 🔹 **`Aula8/`**: Introdução a sistemas operacionais de tempo real (**FreeRTOS**), tarefas concorrentes preemptivas (`xTaskCreate`, `vTaskDelay`), leitura analógica e interface com display LCD 16x2.
   * 🔹 **`Aula9/`**: FreeRTOS multitarefa com aquisição analógica concorrente, amostragem em rajada rápida (*burst sampling* no pino 12), proteção da UART via Mutex (`xSerialMutex`) e interface com LCD 16x2.
+  * 🔹 **`Aula10/`**: Sincronização entre tarefas preemptivas via Mutex (`xSemaphoreCreateMutex`), proteção da porta serial contra condições de corrida e monitoramento de execução no FreeRTOS.
+  * 🔹 **`Aula11/`**: Leitura de encoder rotativo KY-040 por interrupção por mudança de pino (`PCINT0_vect`), máquina de estados de rotação (Horário/Anti-horário/Repouso), temporização por `millis()` e telemetria serial determinística no Arduino Mega 2560.
+  * 🔹 **`Aula11_8/`**: Integração entre o sistema de encoder da Aula 11 e a interface visual com display LCD 16x2 HD44780 da Aula 8 sob o escalonador do FreeRTOS.
+  * 🔹 **`Aula11_8_HW/`**: Leitura de encoder Bourns PEC11R com pinagem real de esquemático (`D10=CLK`, `D9=DT`, `D8=SW`), interrupção nativa na borda de descida via registrador `PCMSK0 = (1 << PCINT4)` do ATmega2560 sem histórico em software, acumulador em tempo real no LCD e ambiente completo no SimulIDE.
 * 📁 **[`Bancada/`](Bancada/)**: Firmware com FreeRTOS para Arduino Nano e Mega 2560 (CLI Serial 9600 baud, pinos D4-D9 e proteção Break-Before-Make).
 * 📁 **[`bancada_de_teste/`](bancada_de_teste/)**: Bancada de testes de Estação de Recarga Veicular (IEC 61851-1 / IEC 62196-2) em **C++ POO**, **FreeRTOS** multitarefa (ESP32 / Arduino Nano / Mega) e homologação automatizada com **Robot Framework** e relatórios visuais.
 * 📁 **`testes/`**: Testes rápidos de hardware, comunicação e validação:
@@ -107,7 +111,7 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
 
 ---
 
-### 🔹 [Aula 9 — FreeRTOS Multitarefa, Amostragem em Rajada e Sincronização por Mutex](Aulas/Aula9/Aula9.ino)
+### 🔹 [Aula 9 — FreeRTOS Multitarefa, Amostragem em Rajada e Sincronização por Mutex](Aulas/codigos_aulas/Aula9/Aula9.ino)
 * **Objetivo:** Explorar aquisição analógica concorrente com FreeRTOS, amostragem rápida em rajada com sinalizador em osciloscópio e proteção da UART contra colisões e estouro de buffer.
 * **Principais Conceitos:**
   * **Amostragem em Rajada (*Burst Sampling*) com Pino de Trigger:** A tarefa `vNewTaskAnalogRead` realiza a leitura de 64 amostras em intervalos de 1 ms no pino A1, sinalizando o início e fim da rajada no pino digital 12 (`Ci_Pin12`) para aferição com osciloscópio ou analisador lógico.
@@ -115,6 +119,41 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
   * **Exclusão Mútua na UART (`xSerialMutex`):** Proteção da porta Serial compartilhada entre `TaskAnalogRead` (leitura periódica de A0) e `vNewTaskAnalogRead` (amostras de A1) via `xSemaphoreCreateMutex()`, eliminando corrupção de mensagens e caracteres truncados.
   * **Formatação Eficiente de Telemetria:** Impressão das 64 amostras em formato tabular (8 amostras por linha) a 9600 bps para evitar estouro do buffer circular de 64 bytes da UART do microcontrolador.
   * **Concorrência com Display LCD 16x2:** Atualização em tempo real das variáveis globais `sensorValue` e `sensorValueA1` no display.
+
+---
+
+### 🔹 [Aula 10 — Sincronização com Mutex no FreeRTOS](Aulas/codigos_aulas/Aula10/Aula10.ino)
+* **Objetivo:** Garantir a integridade da comunicação serial compartilhada entre múltiplas tarefas concorrentes através de mecanismos de exclusão mútua (*Mutex*).
+* **Principais Conceitos:**
+  * **Criação de Mutex:** Inicialização de semáforo binário de exclusão mútua via `xSemaphoreCreateMutex()`.
+  * **Seção Crítica com Timeout:** Tomada de posse do recurso com `xSemaphoreTake(xMutexSerial, xBlockTime)` e liberação garantida com `xSemaphoreGive(xMutexSerial)`.
+  * **Prevenção de Corrupção Serial:** Eliminação de entrelaçamento de mensagens entre a `TaskBlink` e a `TaskAnalogRead`.
+
+---
+
+### 🔹 [Aula 11 — Encoder Rotativo KY-040 com Interrupção PCINT no FreeRTOS](Aulas/codigos_aulas/Aula11/Aula11.ino)
+* **Objetivo:** Decodificar sinais em quadratura de encoder rotativo utilizando interrupções de hardware por mudança de pino e FreeRTOS no Arduino Mega 2560.
+* **Principais Conceitos:**
+  * **Interrupção PCINT0 no ATmega2560:** Configuração dos registradores `PCICR` e `PCMSK0` para captura de eventos nos pinos 10 (SW), 11 (CLK) e 12 (CCLK).
+  * **Decodificação de Sentido:** Análise da defasagem de 90° entre os canais para classificação dos estados Direita (`D`), Esquerda (`E`) e Parado (`P`).
+  * **Simulação SimulIDE:** Circuito dedicado com o subcircuito do Arduino Mega e o componente `KY040` ([`circuito_aula11.sim1`](Aulas/circuito_simulide/Aula11/circuito_aula11.sim1)).
+
+---
+
+### 🔹 [Aula 11_8 — Integração de Encoder Rotativo com Display LCD 16x2](Aulas/codigos_aulas/Aula11_8/Aula11_8.ino)
+* **Objetivo:** Unir a leitura de encoder da Aula 11 com o display LCD HD44780 da Aula 8 em um sistema multitarefa integrado.
+* **Principais Conceitos:**
+  * **Comunicação entre Tarefas:** A tarefa `TaskDisplay` consome o estado gerado pela interrupção e atualiza o contador acumulador no display a cada 200 ms.
+  * **Alimentação por Software:** Configuração dos trilhos de alimentação do display via pinos digitais do Mega para compatibilidade física com o shield de laboratório.
+  * **Simulação SimulIDE:** Circuito conjunto ([`circuito_aula11_8.sim1`](Aulas/circuito_simulide/Aula11_8/circuito_aula11_8.sim1)).
+
+---
+
+### 🔹 [Aula 11_8_HW — Pinagem Real PEC11R e Borda de Descida Nativa](Aulas/codigos_aulas/Aula11_8_HW/Aula11_8_HW.ino)
+* **Objetivo:** Implementar o firmware definitivo para o esquemático físico de bancada com encoder Bourns PEC11R (`D10=CLK`, `D9=DT`, `D8=SW`) e resistores físicos de pull-up de 10k.
+* **Principais Conceitos:**
+  * **Interrupção Nativa na Descida sem Histórico em Software:** Como apenas o pino 10 (`PB4`) possui `PCINT4` e os pinos 9 e 8 estão em `PORTH` (sem PCINT), configurar `PCMSK0 = (1 << PCINT4)` garante que a interrupção só acorda no canal de clock. Um simples `if (digitalRead(ci_pinEnc_CLK) == LOW)` captura exclusivamente a borda de descida com custo computacional mínimo.
+  * **Simulação e Esquemático Completo:** Circuito [`circuito_aula11_8_hw.sim1`](Aulas/circuito_simulide/Aula11_8_HW/circuito_aula11_8_hw.sim1) com fiação direta nos pinos 10, 9 e 8 e LCD 16x2 perfeitamente posicionado.
 
 ---
 
