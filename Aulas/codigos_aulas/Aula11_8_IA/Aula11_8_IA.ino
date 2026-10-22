@@ -13,9 +13,9 @@ const uint8_t ipinVDD = 47, ipinVSS = 49, ipin15  = 51, ipin16  = 53;
 // Pinos do Encoder KY-040 (vindos da Aula 11)
 const uint8_t ci_pinEnc_GND  = 8;
 const uint8_t ci_pinEnc_VCC  = 9;
-const uint8_t ci_pinEnc_BTN  = 10; // SW (Botão de clique)
-const uint8_t ci_pinEnc_CLK  = 11; // Canal A
-const uint8_t ci_pinEnc_CCLK = 12; // Canal B (DT)
+const uint8_t ci_pinEnc_BTN  = 10; // SW (Botão de clique - PCINT4 / PB4)
+const uint8_t ci_pinEnc_CLK  = 11; // Canal A (CLK - PCINT5 / PB5)
+const uint8_t ci_pinEnc_CCLK = 12; // Canal B (DT  - PCINT6 / PB6)
 
 // Objeto de controle do display LCD
 LiquidCrystal lcd(ipinRS, ipinRW, ipinE, ipinDB4, ipinDB5, ipinDB6, ipinDB7);
@@ -25,10 +25,10 @@ LiquidCrystal lcd(ipinRS, ipinRW, ipinE, ipinDB4, ipinDB5, ipinDB6, ipinDB7);
 // ==============================================================================
 typedef enum {
   ENC_EVENT_NONE,
-  ENC_EVENT_CW,         // Giro Horário
-  ENC_EVENT_CCW,        // Giro Anti-horário
-  ENC_EVENT_CLICK,      // Clique Curto (< 1.2s)
-  ENC_EVENT_LONG_CLICK  // Clique Longo (> 1.2s - Reset)
+  ENC_EVENT_CW,         // Giro Horário (Direita)
+  ENC_EVENT_CCW,        // Giro Anti-horário (Esquerda)
+  ENC_EVENT_CLICK,      // Clique Curto (< 1.2s - Seleciona / Desseleciona)
+  ENC_EVENT_LONG_CLICK  // Clique Longo (> 1.2s - Reset para 000000)
 } eEncoderEvent;
 
 typedef enum {
@@ -49,24 +49,49 @@ const uint32_t PESOS_DECIMAIS[6] = {
 const uint32_t VALOR_MAXIMO = 999999UL;
 const uint32_t VALOR_MINIMO = 0UL;
 
-// Fila FreeRTOS para transporte seguro de eventos do Encoder para a UI
+// Fila FreeRTOS para transporte seguro de eventos do Encoder/Botão para a UI
 QueueHandle_t xEncoderQueue = NULL;
 
+// Estado anterior de CLK para detecção de borda no ISR
+volatile uint8_t v_lastCLK = HIGH;
+
 // Protótipos das Tarefas FreeRTOS
-void TaskEncoder(void *pvParameters);
+void TaskButton(void *pvParameters);
 void TaskUI(void *pvParameters);
 void TaskHeartbeat(void *pvParameters);
+
+// ==============================================================================
+// INTERRUPÇÃO POR MUDANÇA DE PINO (PCINT0) - QUADRATURA KY-040
+// ==============================================================================
+ISR(PCINT0_vect) {
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  uint8_t currentCLK = digitalRead(ci_pinEnc_CLK);
+  uint8_t currentDT  = digitalRead(ci_pinEnc_CCLK);
+
+  // Transição de descida no sinal CLK (Detent do encoder)
+  if (v_lastCLK == HIGH && currentCLK == LOW) {
+    eEncoderEvent event;
+    if (currentDT == HIGH) {
+      event = ENC_EVENT_CW;   // Horário (Direita)
+    } else {
+      event = ENC_EVENT_CCW;  // Anti-horário (Esquerda)
+    }
+    xQueueSendFromISR(xEncoderQueue, &event, &xHigherPriorityTaskWoken);
+  }
+  v_lastCLK = currentCLK;
+
+  if (xHigherPriorityTaskWoken) {
+    portYIELD_FROM_ISR();
+  }
+}
 
 // ==============================================================================
 // SETUP E INICIALIZAÇÃO
 // ==============================================================================
 void setup() {
   Serial.begin(9600);
-  while (!Serial) {
-    ;
-  }
 
-  // Alimentação ativa dos trilhos do LCD
+  // Alimentação ativa dos trilhos do LCD (compatibilidade com hardware da Aula 8)
   pinMode(ipinVDD, OUTPUT); digitalWrite(ipinVDD, HIGH);
   pinMode(ipinVSS, OUTPUT); digitalWrite(ipinVSS, LOW);
   pinMode(ipin15,  OUTPUT); digitalWrite(ipin15,  LOW);
@@ -79,98 +104,79 @@ void setup() {
     pinMode(i, OUTPUT);
   }
 
-  // Inicialização do LCD com ajuste de contraste PWM
-  lcd.begin(16, 2);
-  analogWrite(ipinV0, 64);
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print(F("  AULA 11_8 IA  "));
-  lcd.setCursor(0, 1);
-  lcd.print(F(" EDITOR NUMERICO"));
-  vTaskDelay(pdMS_TO_TICKS(1200));
-  lcd.clear();
-
-  // Alimentação ativa do Encoder KY-040
+  // Alimentação ativa do Encoder KY-040 (compatibilidade com Aula 11)
   pinMode(ci_pinEnc_GND, OUTPUT); digitalWrite(ci_pinEnc_GND, LOW);
   pinMode(ci_pinEnc_VCC, OUTPUT); digitalWrite(ci_pinEnc_VCC, HIGH);
   pinMode(ci_pinEnc_CLK, INPUT_PULLUP);
   pinMode(ci_pinEnc_CCLK, INPUT_PULLUP);
   pinMode(ci_pinEnc_BTN, INPUT_PULLUP);
 
-  // Criação da Fila de Eventos (16 mensagens)
+  v_lastCLK = digitalRead(ci_pinEnc_CLK);
+
+  // Configuração da interrupção por mudança de pino (PCINT0) no ATmega2560
+  PCICR  |= 0b00000001; // Habilita interrupção PCINT[7:0]
+  PCMSK0 |= 0b01110000; // Habilita máscara para pinos 10 (PB4), 11 (PB5) e 12 (PB6)
+
+  // Criação da Fila FreeRTOS (16 eventos)
   xEncoderQueue = xQueueCreate(16, sizeof(eEncoderEvent));
 
-  // Criação das Tarefas com pilhas dimensionadas com segurança
-  xTaskCreate(TaskEncoder,   "Encoder",   128, NULL, 3, NULL);
+  // Criação das Tarefas com pilhas seguras
+  xTaskCreate(TaskButton,    "Btn",       128, NULL, 2, NULL);
   xTaskCreate(TaskUI,        "UI",        256, NULL, 2, NULL);
   xTaskCreate(TaskHeartbeat, "Heartbeat", 128, NULL, 1, NULL);
+
+  // NOTA CRÍTICA: Nenhuma chamada a vTaskDelay() pode ocorrer aqui no setup().
+  // O escalonador FreeRTOS assume o controle automaticamente ao sair do setup().
 }
 
 void loop() {
-  // FreeRTOS assume o controle do microcontrolador
+  // Loop vazio: FreeRTOS gerencia o microcontrolador
 }
 
 // ==============================================================================
-// TAREFA 1: DEBOUNCE E DECODIFICAÇÃO DO ENCODER KY-040 (PRODUTOR)
+// TAREFA 1: DEBOUNCE E TEMPORIZAÇÃO DO BOTÃO CENTRAL (PRODUTOR)
 // ==============================================================================
-void TaskEncoder(void *pvParameters) {
+void TaskButton(void *pvParameters) {
   (void) pvParameters;
 
-  uint8_t u8_lastCLK = digitalRead(ci_pinEnc_CLK);
-  uint32_t u32_btnPressTime = 0;
-  bool b_btnPressed = false;
-  bool b_longClickSent = false;
+  uint32_t u32_pressStart = 0;
+  bool b_isPressed = false;
+  bool b_longReported = false;
 
   for (;;) {
     const uint32_t u32_agora = millis();
+    bool b_currentPressed = (digitalRead(ci_pinEnc_BTN) == LOW);
 
-    // 1. Decodificação de Rotação por Transição de Borda com Anti-Repique
-    uint8_t u8_currentCLK = digitalRead(ci_pinEnc_CLK);
-    if (u8_currentCLK != u8_lastCLK && u8_currentCLK == LOW) {
-      eEncoderEvent event;
-      if (digitalRead(ci_pinEnc_CCLK) != LOW) {
-        event = ENC_EVENT_CW;  // Horário
-      } else {
-        event = ENC_EVENT_CCW; // Anti-horário
-      }
-      xQueueSend(xEncoderQueue, &event, 0);
-    }
-    u8_lastCLK = u8_currentCLK;
-
-    // 2. Leitura Inteligente do Botão Central (Curto vs Longo)
-    bool b_btnCurrentState = (digitalRead(ci_pinEnc_BTN) == LOW);
-
-    if (b_btnCurrentState && !b_btnPressed) {
-      // Início do clique
-      b_btnPressed = true;
-      b_longClickSent = false;
-      u32_btnPressTime = u32_agora;
-    } else if (b_btnCurrentState && b_btnPressed) {
-      // Pressionamento contínuo: verifica se atingiu o limiar de clique longo (1.2s)
-      if (!b_longClickSent && (u32_agora - u32_btnPressTime >= 1200UL)) {
+    if (b_currentPressed && !b_isPressed) {
+      // Borda de descida (botão pressionado)
+      b_isPressed = true;
+      b_longReported = false;
+      u32_pressStart = u32_agora;
+    } else if (b_currentPressed && b_isPressed) {
+      // Pressionamento mantido: verifica clique longo (> 1.2s)
+      if (!b_longReported && (u32_agora - u32_pressStart >= 1200UL)) {
         eEncoderEvent event = ENC_EVENT_LONG_CLICK;
         xQueueSend(xEncoderQueue, &event, 0);
-        b_longClickSent = true;
+        b_longReported = true;
       }
-    } else if (!b_btnCurrentState && b_btnPressed) {
-      // Botão liberado: se não foi clique longo e durou > 40ms, é clique simples
-      if (!b_longClickSent && (u32_agora - u32_btnPressTime >= 40UL)) {
+    } else if (!b_currentPressed && b_isPressed) {
+      // Borda de subida (botão liberado): se foi clique rápido (> 40ms)
+      if (!b_longReported && (u32_agora - u32_pressStart >= 40UL)) {
         eEncoderEvent event = ENC_EVENT_CLICK;
         xQueueSend(xEncoderQueue, &event, 0);
       }
-      b_btnPressed = false;
-      b_longClickSent = false;
+      b_isPressed = false;
+      b_longReported = false;
     }
 
-    vTaskDelay(pdMS_TO_TICKS(3)); // Amostragem rápida e leve a 3 ms
+    vTaskDelay(pdMS_TO_TICKS(10)); // Varredura periódica a cada 10ms
   }
 }
 
 // ==============================================================================
-// FUNÇÕES AUXILIARES DE FORMATAÇÃO DO DISPLAY
+// FUNÇÕES DE FORMATAÇÃO E RENDERIZAÇÃO NO LCD 16x2
 // ==============================================================================
 void formatarNumero6Digitos(uint32_t val, char *buffer) {
-  // Preenche o buffer com zeros à esquerda: ex: 004500
   for (int8_t i = 5; i >= 0; i--) {
     buffer[i] = '0' + (val % 10);
     val /= 10;
@@ -182,17 +188,16 @@ void renderizarTela(uint32_t valor, uint8_t casa, eModoUI modo) {
   char strNum[7];
   formatarNumero6Digitos(valor, strNum);
 
-  // Linha 0: "VAL: [ 000000 ] " (Dígitos começam na coluna 7)
+  // Linha 0 (16 chars): "VAL: [ 000000 ] "
   lcd.setCursor(0, 0);
   lcd.print(F("VAL: [ "));
   lcd.print(strNum);
-  lcd.print(F(" ]"));
+  lcd.print(F(" ] "));
 
-  // Linha 1: Status da interface e indicador da casa ativa
+  // Linha 1 (16 chars)
   lcd.setCursor(0, 1);
   if (modo == MODO_NAVEGACAO) {
-    lcd.print(F("NAV "));
-    // Monta a linha com o indicador '^' alinhado sob o dígito selecionado
+    lcd.print(F("NAV: [ "));
     for (uint8_t c = 0; c < 6; c++) {
       if (c == casa) {
         lcd.print('^');
@@ -200,12 +205,12 @@ void renderizarTela(uint32_t valor, uint8_t casa, eModoUI modo) {
         lcd.print(' ');
       }
     }
-    lcd.print(F("  [SEL]"));
+    lcd.print(F(" ] "));
     lcd.noCursor();
     lcd.noBlink();
   } else {
-    lcd.print(F("EDIT: [+/-]  [OK]"));
-    // No modo edição, posiciona o cursor piscante exatamente no dígito ativo
+    lcd.print(F("EDT: [+/-]  [OK]"));
+    // Posiciona o cursor de hardware exatamente sobre o dígito ativo (coluna 7 + casa)
     lcd.setCursor(7 + casa, 0);
     lcd.cursor();
     lcd.blink();
@@ -218,20 +223,32 @@ void renderizarTela(uint32_t valor, uint8_t casa, eModoUI modo) {
 void TaskUI(void *pvParameters) {
   (void) pvParameters;
 
+  // Inicialização segura do display dentro do contexto de tarefa
+  lcd.begin(16, 2);
+  analogWrite(ipinV0, 64); // Contraste ótimo
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(F("  AULA 11_8 IA  "));
+  lcd.setCursor(0, 1);
+  lcd.print(F(" EDITOR NUMERICO"));
+  
+  // Atraso de apresentação com escalonador em execução
+  vTaskDelay(pdMS_TO_TICKS(1200));
+  lcd.clear();
+
   uint32_t u32_valor = 0UL;
-  uint8_t  u8_casa = 0; // 0 = 100.000 (esquerda) até 5 = 1 (direita)
+  uint8_t  u8_casa = 0; // 0 = mais significativo (100k) até 5 = menos significativo (1)
   eModoUI  e_modo = MODO_NAVEGACAO;
 
   renderizarTela(u32_valor, u8_casa, e_modo);
-
   Serial.println(F("[IHM INICIADA] Modo: NAVEGACAO | Valor: 000000"));
 
   eEncoderEvent event;
   for (;;) {
-    // Bloqueia com segurança aguardando eventos da fila
+    // Bloqueia com consumo zero de CPU até chegar evento do encoder ou botão
     if (xQueueReceive(xEncoderQueue, &event, portMAX_DELAY) == pdPASS) {
 
-      // Reset rápido com clique longo (> 1.2s)
+      // Reset total com clique longo (> 1.2s)
       if (event == ENC_EVENT_LONG_CLICK) {
         u32_valor = 0UL;
         u8_casa = 0;
@@ -242,21 +259,21 @@ void TaskUI(void *pvParameters) {
       }
 
       // ----------------------------------------------------------------------
-      // MODO 1: NAVEGAÇÃO DE CASAS DECIMAIS
+      // MODO 1: NAVEGAÇÃO ENTRE CASAS DECIMAIS (0 a 5)
       // ----------------------------------------------------------------------
       if (e_modo == MODO_NAVEGACAO) {
         if (event == ENC_EVENT_CW) {
-          // Gira para Direita: avança para a próxima casa (trava no fim: casa 5)
+          // Direita: avança para a próxima casa (trava no fim: casa 5)
           if (u8_casa < 5) {
             u8_casa++;
           }
         } else if (event == ENC_EVENT_CCW) {
-          // Gira para Esquerda: recua para a casa anterior (trava no início: casa 0)
+          // Esquerda: recua para a casa anterior (trava no início: casa 0)
           if (u8_casa > 0) {
             u8_casa--;
           }
         } else if (event == ENC_EVENT_CLICK) {
-          // Clique simples: entra no modo de edição da casa selecionada
+          // Clique simples: seleciona e entra no modo edição
           e_modo = MODO_EDICAO;
           Serial.print(F("[MODO EDICAO] Casa ativa: "));
           Serial.print(u8_casa);
@@ -272,28 +289,28 @@ void TaskUI(void *pvParameters) {
         const uint32_t peso = PESOS_DECIMAIS[u8_casa];
 
         if (event == ENC_EVENT_CW) {
-          // Gira para Direita: soma o peso decimal sem ultrapassar o valor máximo
+          // Direita: soma o peso sem estourar o valor máximo (999999)
           if (u32_valor + peso <= VALOR_MAXIMO) {
             u32_valor += peso;
           } else {
-            u32_valor = VALOR_MAXIMO; // Trava no limite máximo de 999999
+            u32_valor = VALOR_MAXIMO;
           }
         } else if (event == ENC_EVENT_CCW) {
-          // Gira para Esquerda: subtrai o peso decimal sem ficar negativo
+          // Esquerda: subtrai o peso sem descer abaixo de zero
           if (u32_valor >= peso) {
             u32_valor -= peso;
           } else {
-            u32_valor = VALOR_MINIMO; // Trava no limite mínimo de 0
+            u32_valor = VALOR_MINIMO;
           }
         } else if (event == ENC_EVENT_CLICK) {
-          // Clique simples: confirma e volta ao modo navegação
+          // Clique simples: desseleciona (confirma) e volta à navegação
           e_modo = MODO_NAVEGACAO;
           Serial.print(F("[MODO NAVEGACAO] Valor Confirmado: "));
           Serial.println(u32_valor);
         }
       }
 
-      // Atualiza visualmente o display LCD com o novo estado
+      // Atualiza o display com o novo estado
       renderizarTela(u32_valor, u8_casa, e_modo);
     }
   }

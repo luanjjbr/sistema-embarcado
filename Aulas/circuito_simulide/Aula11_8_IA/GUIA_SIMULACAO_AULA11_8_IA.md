@@ -35,3 +35,4 @@ O editor manipula um número de 6 dígitos (`000000` a `999999`) e opera em **2 
 3. Clique no botão de **Power** (vermelho/verde) no topo para iniciar.
 4. Clique com o botão direito na placa Arduino Mega -> selecione **Open Serial Monitor** (9600 baud) para acompanhar os eventos em tempo real.
 5. Gire o encoder e clique no botão para testar a navegação e a edição!
+
