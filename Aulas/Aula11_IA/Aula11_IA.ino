@@ -117,8 +117,11 @@ void TaskENCODERRead(void *pvParameters){
     }
 
     if(stBTNENC0.eBT_estadoAtual_CK != P){
-      /* Se passaram mais de 500 ms desde o último pulso registrado na ISR */
-      if((millis() - stBTNENC0.u32_TempoAtual_CK) > (stBTNENC0.u32_Tempopressionado_CK + 500UL)){
+      /* Atualiza o tempo pressionado/rodando quando entra na Task */
+      stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK;
+
+      /* Quando para de rodar (500 ms sem atualizar u32_TempoAtual_CK), atualiza o PosSolto e volta para P */
+      if((millis() > stBTNENC0.u32_TempoAtual_CK + 500)){
         stBTNENC0.u32_TempopressionadoPosSolto_CK = stBTNENC0.u32_Tempopressionado_CK;
         stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
         stBTNENC0.eBT_estadoAtual_CK = P;
@@ -130,29 +133,23 @@ void TaskENCODERRead(void *pvParameters){
 }
 
 ISR(PCINT0_vect){
-  bool b_clk  = digitalRead(ci_pinEnc_CLK);
-  bool b_cclk = digitalRead(ci_pinEnc_CCLK);
-
-  if(stBTNENC0.eBT_estadoAtual_CK == P){
-    if(!b_cclk && b_clk){
-      //Serial.println("D");
-      stBTNENC0.u32_TempoAtual_CK = millis();
-      stBTNENC0.u32_Tempopressionado_CK = 0;
-      stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
-      stBTNENC0.eBT_estadoAtual_CK = D;
-    }
-    else if(!b_clk && b_cclk){
-      //Serial.println("E");
-      stBTNENC0.u32_TempoAtual_CK = millis();
-      stBTNENC0.u32_Tempopressionado_CK = 0;
-      stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
-      stBTNENC0.eBT_estadoAtual_CK = E;
-    }
+  if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK == P){
+    //Serial.println("D");
+    stBTNENC0.u32_TempoAtual_CK = millis();
+    stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
+    stBTNENC0.eBT_estadoAtual_CK = D;
   }
-  else{
-    /* Atualiza o tempo acumulado de giro a cada novo pulso da quadratura */
-    if((!b_cclk && b_clk) || (!b_clk && b_cclk)){
-      stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK;
-    }
+  if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK == P){
+    //Serial.println("E");
+    stBTNENC0.u32_TempoAtual_CK = millis();
+    stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
+    stBTNENC0.eBT_estadoAtual_CK = E;
+  }
+
+  if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK != P){
+    stBTNENC0.u32_TempoAtual_CK = millis();
+  }
+  if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK != P){
+    stBTNENC0.u32_TempoAtual_CK = millis();
   }
 }
