@@ -194,14 +194,21 @@ Todas as simulações do microcontrolador Arduino Mega 2560 adotam uma geometria
 
 ### 📋 Tabela de Simulações Disponíveis
 
-| Aula | Circuito SimulIDE (`.sim1`) | Firmware Vinculado (`.hex`) | Periféricos Simulados |
-| :--- | :--- | :--- | :--- |
-| **Aula 8** | [`circuito_aula8.sim1`](Aulas/circuito_simulide/Aula8/circuito_aula8.sim1) | `codigos_aulas/Aula8/build/.../Aula8.ino.hex` | Display LCD 16x2 HD44780, FreeRTOS Multitarefa |
-| **Aula 9** | [`circuito_aula9.sim1`](Aulas/circuito_simulide/Aula9/circuito_aula9.sim1) | `codigos_aulas/Aula9/build/.../Aula9.ino.hex` | Display LCD 16x2, FreeRTOS, Sinais Analógicos |
-| **Aula 10** | [`circuito_aula10.sim1`](Aulas/circuito_simulide/Aula10/circuito_aula10.sim1) | `codigos_aulas/Aula10/build/.../Aula10.ino.hex` | Serial Monitor, Proteção por Mutex |
-| **Aula 11** | [`circuito_aula11.sim1`](Aulas/circuito_simulide/Aula11/circuito_aula11.sim1) | `codigos_aulas/Aula11/build/.../Aula11.ino.hex` | Encoder KY-040 por interrupção `PCINT0_vect` |
-| **Aula 11_8** | [`circuito_aula11_8.sim1`](Aulas/circuito_simulide/Aula11_8/circuito_aula11_8.sim1) | `codigos_aulas/Aula11_8/build/.../Aula11_8.ino.hex` | Display LCD 16x2 + Encoder KY-040 integrado |
-| **Aula 11_8_HW** | [`circuito_aula11_8_hw.sim1`](Aulas/circuito_simulide/Aula11_8_HW/circuito_aula11_8_hw.sim1) | `codigos_aulas/Aula11_8_HW/build/.../Aula11_8_HW.ino.hex` | Display LCD 16x2 + Bourns PEC11R (Borda de Descida Nativa) |
+| Aula | Circuito SimulIDE (`.sim1`) | Microcontrolador | Firmware Vinculado (`.hex`) | Periféricos Simulados |
+| :--- | :--- | :--- | :--- | :--- |
+| **Aula 1** | [`circuito_aula1.sim1`](Aulas/circuito_simulide/Aula1/circuito_aula1.sim1) | Arduino Uno | `codigos_aulas/Aula1/build/.../Aula1.ino.hex` | Potenciômetro em A0, Serial Monitor |
+| **Aula 2** | [`circuito_aula2.sim1`](Aulas/circuito_simulide/Aula2/circuito_aula2.sim1) | Arduino Uno | `codigos_aulas/Aula2/build/.../Aula2.ino.hex` | Calibração Bandgap 1.1V, Serial Monitor |
+| **Aula 3** | [`circuito_aula3.sim1`](Aulas/circuito_simulide/Aula3/circuito_aula3.sim1) | Arduino Uno | `codigos_aulas/Aula3/build/.../Aula3.ino.hex` | EEPROM, Checksum, Buffer Circular |
+| **Aula 4** | [`circuito_aula4.sim1`](Aulas/circuito_simulide/Aula4/circuito_aula4.sim1) | Arduino Uno | `codigos_aulas/Aula4/build/.../Aula4.ino.hex` | CRC-16 Modbus, Dump Hexadecimal, Terminal UART |
+| **Aula 5** | [`circuito_aula5_malloc.sim1`](Aulas/circuito_simulide/Aula5_Malloc/circuito_aula5_malloc.sim1) | Arduino Uno | `codigos_aulas/Aula5_Malloc/build/.../Aula5_Malloc.ino.hex` | Heap, Alocação Dinâmica `malloc`/`free` |
+| **Aula 6** | [`circuito_aula6_malloc_integrado.sim1`](Aulas/circuito_simulide/Aula6_Malloc_Integrado/circuito_aula6_malloc_integrado.sim1) | Arduino Uno | `codigos_aulas/Aula6_Malloc_Integrado/build/.../Aula6_Malloc_Integrado.ino.hex` | Potenciômetro em A0, Alocação Dinâmica + CRC-16 |
+| **Aula 7** | [`circuito_aula7_datalogger_final.sim1`](Aulas/circuito_simulide/Aula7_DataLogger_Final/circuito_aula7_datalogger_final.sim1) | Arduino Uno | `codigos_aulas/Aula7_DataLogger_Final/build/.../Aula7_DataLogger_Final.ino.hex` | Data Logger Completo (A0..A5), Terminal Serial |
+| **Aula 8** | [`circuito_aula8.sim1`](Aulas/circuito_simulide/Aula8/circuito_aula8.sim1) | Arduino Mega | `codigos_aulas/Aula8/build/.../Aula8.ino.hex` | Display LCD 16x2 HD44780, FreeRTOS Multitarefa |
+| **Aula 9** | [`circuito_aula9.sim1`](Aulas/circuito_simulide/Aula9/circuito_aula9.sim1) | Arduino Mega | `codigos_aulas/Aula9/build/.../Aula9.ino.hex` | Display LCD 16x2, FreeRTOS, Sinais Analógicos |
+| **Aula 10** | [`circuito_aula10.sim1`](Aulas/circuito_simulide/Aula10/circuito_aula10.sim1) | Arduino Mega | `codigos_aulas/Aula10/build/.../Aula10.ino.hex` | Serial Monitor, Proteção por Mutex |
+| **Aula 11** | [`circuito_aula11.sim1`](Aulas/circuito_simulide/Aula11/circuito_aula11.sim1) | Arduino Mega | `codigos_aulas/Aula11/build/.../Aula11.ino.hex` | Encoder KY-040 por interrupção `PCINT0_vect` |
+| **Aula 11_8** | [`circuito_aula11_8.sim1`](Aulas/circuito_simulide/Aula11_8/circuito_aula11_8.sim1) | Arduino Mega | `codigos_aulas/Aula11_8/build/.../Aula11_8.ino.hex` | Display LCD 16x2 + Encoder KY-040 integrado |
+| **Aula 11_8_HW** | [`circuito_aula11_8_hw.sim1`](Aulas/circuito_simulide/Aula11_8_HW/circuito_aula11_8_hw.sim1) | Arduino Mega | `codigos_aulas/Aula11_8_HW/build/.../Aula11_8_HW.ino.hex` | Display LCD 16x2 + Bourns PEC11R (Borda de Descida Nativa) |
 
 ---
 

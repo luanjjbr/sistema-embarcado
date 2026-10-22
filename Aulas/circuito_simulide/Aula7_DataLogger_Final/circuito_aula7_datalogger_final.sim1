@@ -1,0 +1,11 @@
+<circuit version="1.1.0-SR2" rev="260312" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
+
+<item itemtype="Subcircuit" CircId="Uno-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-250,-200" rotation="0" hflip="1" vflip="1" label="Arduino Uno" idLabPos="43.4536,-17.8585" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega328-109" Frequency="16 MHz" Program="../../codigos_aulas/Aula7_DataLogger_Final/build/arduino.avr.uno/Aula7_DataLogger_Final.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="true" SerialMon="1" />
+</item>
+
+<item itemtype="Potentiometer" CircId="Pot-1" mainComp="false" ShowProp="Resistance" Show_id="false" Show_Val="true" Pos="-380,-150" rotation="0" hflip="1" vflip="1" label="Pot-A0" idLabPos="-16,-24" labelrot="0" valLabPos="25,-26" valLabRot="0" Resistance="10 kO" Value_Ohm="5000 O" Slider="false" Scale="1" />
+
+<item itemtype="Connector" uid="Connector-A0" startpinid="Pot-1-PinM" endpinid="Uno-1-A0" pointList="-364,-150,-260,-150" />
+
+</circuit>
