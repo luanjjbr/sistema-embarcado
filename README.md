@@ -157,6 +157,70 @@ Este repositório foi criado para centralizar e organizar todo o material de apo
 
 ---
 
+## 🕹️ Ambiente de Simulação Virtual (SimulIDE 1.1.0-SR2)
+
+O repositório conta com um conjunto completo de circuitos pré-configurados na pasta `Aulas/circuito_simulide/` para simulação visual e interativa no **SimulIDE 1.1.0-SR2**, eliminando a necessidade de montagem física para validação dos códigos e sinais.
+
+### 📐 Layout de Bancada Padronizado
+Todas as simulações do microcontrolador Arduino Mega 2560 adotam uma geometria uniforme de bancada inspirada no hardware real:
+- **Arduino Mega 2560:** Rotacionado a 270° (`rotation="270"`), mantendo os barramentos de I/O digital e controle acessíveis sem cruzamento de trilhas.
+- **Display LCD 16x2 HD44780:** Posicionado no quadrante superior esquerdo (`Pos="-448,-156"`), com o barramento de dados conectado diretamente aos pinos digitais 23 (D7), 25 (D6), 27 (D5) e 29 (D4), e as linhas de controle em 39 (En), 41 (RW) e 43 (RS).
+- **Encoder Rotativo (Bourns PEC11R / KY-040):** Posicionado no quadrante inferior esquerdo (`Pos="-414,6"`), com fiação direta aos pinos digitais D8 (`SW`), D9 (`DT`) e D10 (`CLK`).
+
+```text
+               ┌──────────────────────────────────────────────┐
+               │         Display LCD 16x2 (HD44780)           │
+               │               [-448, -156]                   │
+               └──────────┬─────────────────┬─────────────────┘
+         RS, RW, En       │                 │ D4, D5, D6, D7
+       (Pinos 43, 41, 39) │                 │ (Pinos 29, 27, 25, 23)
+                          ▼                 ▼
+               ┌──────────────────────────────────────────────┐
+               │                                              │
+               │              Arduino Mega 2560               │
+               │               (Rotação: 270°)                │
+               │                                              │
+               └──────────────────────▲───────────────────────┘
+                                      │
+               ┌──────────────────────┴───────────────────────┐
+               │         CLK (D10), DT (D9), SW (D8)          │
+               │                                              │
+               │           Encoder Rotativo (KY-040)          │
+               │                 [-414, 6]                    │
+               └──────────────────────────────────────────────┘
+```
+
+---
+
+### 📋 Tabela de Simulações Disponíveis
+
+| Aula | Circuito SimulIDE (`.sim1`) | Firmware Vinculado (`.hex`) | Periféricos Simulados |
+| :--- | :--- | :--- | :--- |
+| **Aula 8** | [`circuito_aula8.sim1`](Aulas/circuito_simulide/Aula8/circuito_aula8.sim1) | `codigos_aulas/Aula8/build/.../Aula8.ino.hex` | Display LCD 16x2 HD44780, FreeRTOS Multitarefa |
+| **Aula 9** | [`circuito_aula9.sim1`](Aulas/circuito_simulide/Aula9/circuito_aula9.sim1) | `codigos_aulas/Aula9/build/.../Aula9.ino.hex` | Display LCD 16x2, FreeRTOS, Sinais Analógicos |
+| **Aula 10** | [`circuito_aula10.sim1`](Aulas/circuito_simulide/Aula10/circuito_aula10.sim1) | `codigos_aulas/Aula10/build/.../Aula10.ino.hex` | Serial Monitor, Proteção por Mutex |
+| **Aula 11** | [`circuito_aula11.sim1`](Aulas/circuito_simulide/Aula11/circuito_aula11.sim1) | `codigos_aulas/Aula11/build/.../Aula11.ino.hex` | Encoder KY-040 por interrupção `PCINT0_vect` |
+| **Aula 11_8** | [`circuito_aula11_8.sim1`](Aulas/circuito_simulide/Aula11_8/circuito_aula11_8.sim1) | `codigos_aulas/Aula11_8/build/.../Aula11_8.ino.hex` | Display LCD 16x2 + Encoder KY-040 integrado |
+| **Aula 11_8_HW** | [`circuito_aula11_8_hw.sim1`](Aulas/circuito_simulide/Aula11_8_HW/circuito_aula11_8_hw.sim1) | `codigos_aulas/Aula11_8_HW/build/.../Aula11_8_HW.ino.hex` | Display LCD 16x2 + Bourns PEC11R (Borda de Descida Nativa) |
+
+---
+
+### 🚀 Como Executar e Recarregar uma Simulação no SimulIDE
+
+1. **Abra o SimulIDE 1.1.0-SR2.**
+2. **Carregue o Circuito:**
+   - Clique em **Open Circuit** (`Ctrl + O`).
+   - Navegue até `Aulas/circuito_simulide/<Aula>/` e selecione o arquivo correspondente (`.sim1`).
+3. **Inicie a Simulação:**
+   - Clique no botão **Power** (ícone do botão vermelho que muda para amarelo/verde).
+4. **Vínculo Automático do Firmware:**
+   - Todos os arquivos `.sim1` possuem caminhos relativos que apontam diretamente para `../../codigos_aulas/<Aula>/build/arduino.avr.mega/<Aula>.ino.hex`.
+   - Se você editar o código `.ino` no Arduino IDE:
+     - Pressione `Ctrl + Alt + S` no Arduino IDE para exportar os binários compilados (ou utilize `arduino-cli compile`).
+     - No **SimulIDE**, clique com o botão direito sobre o componente **Arduino Mega** e selecione **"Reload firmware"** para atualizar a execução instantaneamente.
+
+---
+
 ## 💻 Microcontroladores & Ferramentas Utilizadas
 
 * **Hardware:** ESP32 (DevKit v1), Arduino Nano (ATmega328P), Arduino Mega 2560, Arduino Uno

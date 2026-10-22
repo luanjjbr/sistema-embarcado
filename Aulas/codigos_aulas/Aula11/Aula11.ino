@@ -1,27 +1,26 @@
 #include <Arduino_FreeRTOS.h>
 
-void TaskBlink( void *pvParameters );
+void TaskBlink(void *pvParameters);
 void TaskUART(void *pvParameters);
 void TaskENCODERRead(void *pvParameters);
 
-const int ci_pinEnc_GND = 8;
-const int ci_pinEnc_VCC = 9;
-const int ci_pinEnc_BTN = 10;
-const int ci_pinEnc_CLK = 11;
-const int ci_pinEnc_CCLK = 12;
+// Pinos do Encoder KY-040 (padrão de bancada D8, D9, D10)
+const int ci_pinEnc_BTN  = 8;  // SW (Pino 8)
+const int ci_pinEnc_CCLK = 9;  // DT (Pino 9)
+const int ci_pinEnc_CLK  = 10; // CLK (Pino 10 / PCINT4)
 
-typedef enum{
+typedef enum {
   EPRESSIONADO,
   ESOLTO,
 } eBTState;
 
-typedef enum{
+typedef enum {
   D,
   E,
   P,
 } eCKState;
 
-typedef  struct{
+typedef struct {
   uint32_t u32_TempoAtual;
   uint32_t u32_TempoAtual_CK;
   uint32_t u32_TempoAtual_CK_1;
@@ -38,55 +37,48 @@ typedef  struct{
 volatile stBTNENC stBTNENC0;
 
 void setup() {
-  PCICR |=0b0000001;
-  PCMSK0 |=0b01110000;
-  
+  // Habilita interrupção PCINT exclusivamente para o Pino 10 (PCINT4)
+  PCICR  |= (1 << PCIE0);
+  PCMSK0  = (1 << PCINT4);
 
   Serial.begin(9600);
-
   while (!Serial) {
     ;
   }
-  pinMode(ci_pinEnc_GND,OUTPUT);digitalWrite(ci_pinEnc_GND, LOW);
-  pinMode(ci_pinEnc_VCC,OUTPUT);digitalWrite(ci_pinEnc_VCC, HIGH);
-  pinMode(ci_pinEnc_CLK,INPUT);
-  pinMode(ci_pinEnc_CCLK,INPUT);
-  pinMode(ci_pinEnc_BTN,INPUT);
+
+  pinMode(ci_pinEnc_CLK, INPUT_PULLUP);
+  pinMode(ci_pinEnc_CCLK, INPUT_PULLUP);
+  pinMode(ci_pinEnc_BTN, INPUT_PULLUP);
 
   stBTNENC0.eBT_estadoAtual_CK = P;
-  stBTNENC0.eBT_estadoAnt_CK = P;
-  stBTNENC0.eBT_estadoAnt = ESOLTO;
-  stBTNENC0.eBT_estadoAtual = ESOLTO;
-  
-  xTaskCreate(TaskBlink,"Blink",128,NULL,1,NULL);
+  stBTNENC0.eBT_estadoAnt_CK   = P;
+  stBTNENC0.eBT_estadoAnt      = ESOLTO;
+  stBTNENC0.eBT_estadoAtual    = ESOLTO;
 
-  xTaskCreate(TaskUART, "TaskUART", 256, NULL, 1, NULL);
-
-  xTaskCreate(TaskENCODERRead,"TaskENCODERRead",128,NULL,1,NULL);
-
+  xTaskCreate(TaskBlink,       "Blink",       128, NULL, 1, NULL);
+  xTaskCreate(TaskUART,        "TaskUART",    256, NULL, 1, NULL);
+  xTaskCreate(TaskENCODERRead, "TaskENCODERRead", 128, NULL, 1, NULL);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  // FreeRTOS assume o controle do microcontrolador
 }
-void TaskBlink(void *pvParameters){
+
+void TaskBlink(void *pvParameters) {
   (void) pvParameters;
   pinMode(LED_BUILTIN, OUTPUT);
 
-  for (;;)
-  {
+  for (;;) {
     digitalWrite(LED_BUILTIN, HIGH);
-    vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
     digitalWrite(LED_BUILTIN, LOW);
-    vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    //Serial.println("Blink");
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
 
-void TaskUART(void *pvParameters){
-  for(;;){
-    //int i_encoderPins=(!digitalRead(ci_pinEnc_CLK)<<2)|(!digitalRead(ci_pinEnc_CCLK)<<1)|(!digitalRead(ci_pinEnc_BTN)<<0);
+void TaskUART(void *pvParameters) {
+  (void) pvParameters;
+  for (;;) {
     Serial.print(F("Estado: "));
     Serial.print(stBTNENC0.eBT_estadoAtual);
     Serial.print(F(", "));
@@ -100,29 +92,31 @@ void TaskUART(void *pvParameters){
     Serial.print(F(", "));
     Serial.print(stBTNENC0.u32_TempopressionadoPosSolto_CK);
     Serial.println();
-    vTaskDelay( 100 / portTICK_PERIOD_MS );
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
-void TaskENCODERRead(void *pvParameters){
-  for(;;){
-    if(!digitalRead(ci_pinEnc_BTN)){
-      if(stBTNENC0.eBT_estadoAtual != EPRESSIONADO ){
+
+void TaskENCODERRead(void *pvParameters) {
+  (void) pvParameters;
+  for (;;) {
+    if (!digitalRead(ci_pinEnc_BTN)) {
+      if (stBTNENC0.eBT_estadoAtual != EPRESSIONADO) {
         stBTNENC0.u32_TempoAtual = millis();
       }
       stBTNENC0.u32_Tempopressionado = millis() - stBTNENC0.u32_TempoAtual;
       stBTNENC0.eBT_estadoAnt = stBTNENC0.eBT_estadoAtual;
       stBTNENC0.eBT_estadoAtual = EPRESSIONADO;
-    }else{
-      if(stBTNENC0.eBT_estadoAtual == EPRESSIONADO){
+    } else {
+      if (stBTNENC0.eBT_estadoAtual == EPRESSIONADO) {
         stBTNENC0.u32_TempopressionadoPosSolto = millis() - stBTNENC0.u32_TempoAtual;
       }
       stBTNENC0.eBT_estadoAnt = stBTNENC0.eBT_estadoAtual;
       stBTNENC0.eBT_estadoAtual = ESOLTO;
     }
-    if(stBTNENC0.eBT_estadoAtual_CK != P){
 
+    if (stBTNENC0.eBT_estadoAtual_CK != P) {
       stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK_1;
-      if((millis()>stBTNENC0.u32_TempoAtual_CK+(5000 / portTICK_PERIOD_MS))){
+      if (millis() > stBTNENC0.u32_TempoAtual_CK + (500 / portTICK_PERIOD_MS)) {
         stBTNENC0.u32_TempopressionadoPosSolto_CK = stBTNENC0.u32_Tempopressionado_CK;
         stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
         stBTNENC0.eBT_estadoAtual_CK = P;
@@ -131,26 +125,20 @@ void TaskENCODERRead(void *pvParameters){
     vTaskDelay(1);
   }
 }
-ISR(PCINT0_vect){
-  if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK == P){
-    //Serial.println("D");
-    stBTNENC0.u32_TempoAtual_CK = millis();
-    stBTNENC0.u32_TempoAtual_CK_1 = millis();
-    stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
-    stBTNENC0.eBT_estadoAtual_CK = D;
-  }
-  if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK == P){
-    //Serial.println("E");
-    stBTNENC0.u32_TempoAtual_CK = millis();
-    stBTNENC0.u32_TempoAtual_CK_1 = millis();
-    stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
-    stBTNENC0.eBT_estadoAtual_CK = E;
-  }
 
-  if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK != P){
-    stBTNENC0.u32_TempoAtual_CK = millis();
-  }
-  else if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK != P){
-    stBTNENC0.u32_TempoAtual_CK = millis();
+ISR(PCINT0_vect) {
+  // Como apenas o Pino 10 acorda o vetor, se estiver LOW é Borda de Descida:
+  if (digitalRead(ci_pinEnc_CLK) == LOW) {
+    if (digitalRead(ci_pinEnc_CCLK) == HIGH) {
+      stBTNENC0.u32_TempoAtual_CK = millis();
+      stBTNENC0.u32_TempoAtual_CK_1 = millis();
+      stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
+      stBTNENC0.eBT_estadoAtual_CK = D;
+    } else {
+      stBTNENC0.u32_TempoAtual_CK = millis();
+      stBTNENC0.u32_TempoAtual_CK_1 = millis();
+      stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
+      stBTNENC0.eBT_estadoAtual_CK = E;
+    }
   }
 }

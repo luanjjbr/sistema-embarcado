@@ -3,8 +3,6 @@
 
 #define confgGENERATE_RUN_STATS 1
 
-void vSetupT
-
 int sensorValue = 0;
 SemaphoreHandle_t xMutexSerial;
 TickType_t xBlockTime = pdMS_TO_TICKS(100); // Tempo de espera para o Mutex
@@ -67,7 +65,7 @@ void TaskBlink(void *pvParameters) {
     if (xSemaphoreTake(xMutexSerial, xBlockTime) == pdTRUE) {
       Serial.println("2-Blink: LED Toggled");
       xSemaphoreGive(xMutexSerial); // Libera o Mutex
-    }else{
+    } else {
       Serial.println("2-Blink: LED Toggled");
     }
     vTaskDelay(1000 / portTICK_PERIOD_MS); // Aguarda 1 segundo
@@ -83,7 +81,8 @@ void TaskAnalogRead(void *pvParameters) {
 
     // Protegendo o acesso à Serial com o Mutex
     if (xSemaphoreTake(xMutexSerial, xBlockTime) == pdTRUE) {
-      Serial.println("1-ADC0:" + String(sensorValue));
+      Serial.print("1-ADC0:");
+      Serial.println(sensorValue);
       xSemaphoreGive(xMutexSerial); // Libera o Mutex
     }
 

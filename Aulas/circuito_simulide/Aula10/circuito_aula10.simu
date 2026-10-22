@@ -1,0 +1,7 @@
+<circuit version="1.1.0-SR2" rev="260312" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
+
+<item itemtype="Subcircuit" CircId="Mega-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-250,-200" rotation="270" hflip="1" vflip="1" label="Arduino Mega" idLabPos="179.884,122.28" labelrot="90" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="../../codigos_aulas/Aula10/build/arduino.avr.mega/Aula10.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="true" SerialMon="1" />
+</item>
+
+</circuit>

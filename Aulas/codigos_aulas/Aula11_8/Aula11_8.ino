@@ -7,12 +7,10 @@ void TaskUART(void *pvParameters);
 void TaskENCODERRead(void *pvParameters);
 void TaskDisplay(void *pvParameters);
 
-// Pinos do Encoder KY-040 (vindos da Aula 11)
-const int ci_pinEnc_GND = 8;
-const int ci_pinEnc_VCC = 9;
-const int ci_pinEnc_BTN = 10;
-const int ci_pinEnc_CLK = 11;
-const int ci_pinEnc_CCLK = 12;
+// Pinos do Encoder KY-040 (padrão de bancada D8, D9, D10)
+const int ci_pinEnc_BTN  = 8;  // SW (Pino 8)
+const int ci_pinEnc_CCLK = 9;  // DT (Pino 9)
+const int ci_pinEnc_CLK  = 10; // CLK (Pino 10 / PCINT4)
 
 typedef enum {
   EPRESSIONADO,
@@ -43,19 +41,18 @@ volatile stBTNENC stBTNENC0;
 volatile int32_t Valor = 0; // Acumulador do encoder exibido no display da Aula 8
 
 void setup() {
-  PCICR  |= 0b00000001;
-  PCMSK0 |= 0b01110000;
+  // Habilita interrupção PCINT exclusivamente para o Pino 10 (PCINT4)
+  PCICR  |= (1 << PCIE0);
+  PCMSK0  = (1 << PCINT4);
 
   Serial.begin(9600);
   while (!Serial) {
     ;
   }
 
-  pinMode(ci_pinEnc_GND, OUTPUT); digitalWrite(ci_pinEnc_GND, LOW);
-  pinMode(ci_pinEnc_VCC, OUTPUT); digitalWrite(ci_pinEnc_VCC, HIGH);
-  pinMode(ci_pinEnc_CLK, INPUT);
-  pinMode(ci_pinEnc_CCLK, INPUT);
-  pinMode(ci_pinEnc_BTN, INPUT);
+  pinMode(ci_pinEnc_CLK, INPUT_PULLUP);
+  pinMode(ci_pinEnc_CCLK, INPUT_PULLUP);
+  pinMode(ci_pinEnc_BTN, INPUT_PULLUP);
 
   stBTNENC0.eBT_estadoAtual_CK = P;
   stBTNENC0.eBT_estadoAnt_CK = P;
@@ -139,25 +136,21 @@ void TaskENCODERRead(void *pvParameters) {
   }
 }
 
-// Interrupção por Mudança de Pino (vinda da Aula 11)
+// Interrupção por Mudança de Pino (Pino 10 / CLK)
 ISR(PCINT0_vect) {
-  if (!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK == P) {
-    stBTNENC0.u32_TempoAtual_CK = millis();
-    stBTNENC0.u32_TempoAtual_CK_1 = millis();
-    stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
-    stBTNENC0.eBT_estadoAtual_CK = D;
-  }
-  if (!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK == P) {
-    stBTNENC0.u32_TempoAtual_CK = millis();
-    stBTNENC0.u32_TempoAtual_CK_1 = millis();
-    stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
-    stBTNENC0.eBT_estadoAtual_CK = E;
-  }
-
-  if (!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK != P) {
-    stBTNENC0.u32_TempoAtual_CK = millis();
-  } else if (!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK != P) {
-    stBTNENC0.u32_TempoAtual_CK = millis();
+  // Como apenas o Pino 10 acorda o vetor, se estiver LOW é Borda de Descida:
+  if (digitalRead(ci_pinEnc_CLK) == LOW) {
+    if (digitalRead(ci_pinEnc_CCLK) == HIGH) {
+      stBTNENC0.u32_TempoAtual_CK = millis();
+      stBTNENC0.u32_TempoAtual_CK_1 = millis();
+      stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
+      stBTNENC0.eBT_estadoAtual_CK = D;
+    } else {
+      stBTNENC0.u32_TempoAtual_CK = millis();
+      stBTNENC0.u32_TempoAtual_CK_1 = millis();
+      stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
+      stBTNENC0.eBT_estadoAtual_CK = E;
+    }
   }
 }
 
