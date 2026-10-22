@@ -24,6 +24,7 @@ typedef enum{
 typedef  struct{
   uint32_t u32_TempoAtual;
   uint32_t u32_TempoAtual_CK;
+  uint32_t u32_TempoAtual_CK_1;
   uint32_t u32_TempopressionadoPosSolto;
   uint32_t u32_Tempopressionado;
   uint32_t u32_TempopressionadoPosSolto_CK;
@@ -86,10 +87,10 @@ void TaskBlink(void *pvParameters){
 void TaskUART(void *pvParameters){
   for(;;){
     //int i_encoderPins=(!digitalRead(ci_pinEnc_CLK)<<2)|(!digitalRead(ci_pinEnc_CCLK)<<1)|(!digitalRead(ci_pinEnc_BTN)<<0);
-    Serial.print("Estado: "+String(stBTNENC0.eBT_estadoAtual,HEX));
+    Serial.print("Estado: "+String(stBTNENC0.eBT_estadoAtual));
     Serial.print(", "+String(stBTNENC0.u32_Tempopressionado));
     Serial.print(", "+String(stBTNENC0.u32_TempopressionadoPosSolto));
-    Serial.print(", CK: "+String(stBTNENC0.eBT_estadoAtual_CK,HEX));
+    Serial.print(", CK: "+String(stBTNENC0.eBT_estadoAtual_CK));
     Serial.print(", "+String(stBTNENC0.u32_Tempopressionado_CK));
     Serial.print(", "+String(stBTNENC0.u32_TempopressionadoPosSolto_CK));
     Serial.print("\n");
@@ -113,24 +114,29 @@ void TaskENCODERRead(void *pvParameters){
       stBTNENC0.eBT_estadoAtual = ESOLTO;
     }
     if(stBTNENC0.eBT_estadoAtual_CK != P){
-      stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK;
-      if((millis()>stBTNENC0.u32_TempoAtual_CK+500)){
+
+      stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK_1;
+      if((millis()>stBTNENC0.u32_TempoAtual_CK+(5000 / portTICK_PERIOD_MS))){
         stBTNENC0.u32_TempopressionadoPosSolto_CK = stBTNENC0.u32_Tempopressionado_CK;
+        stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
         stBTNENC0.eBT_estadoAtual_CK = P;
       }
     }
+    vTaskDelay(1);
   }
 }
 ISR(PCINT0_vect){
   if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK == P){
     //Serial.println("D");
     stBTNENC0.u32_TempoAtual_CK = millis();
+    stBTNENC0.u32_TempoAtual_CK_1 = millis();
     stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
     stBTNENC0.eBT_estadoAtual_CK = D;
   }
   if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK == P){
     //Serial.println("E");
     stBTNENC0.u32_TempoAtual_CK = millis();
+    stBTNENC0.u32_TempoAtual_CK_1 = millis();
     stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
     stBTNENC0.eBT_estadoAtual_CK = E;
   }
@@ -138,7 +144,7 @@ ISR(PCINT0_vect){
   if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK != P){
     stBTNENC0.u32_TempoAtual_CK = millis();
   }
-  if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK != P){
+  else if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK != P){
     stBTNENC0.u32_TempoAtual_CK = millis();
   }
 }
