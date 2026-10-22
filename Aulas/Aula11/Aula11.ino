@@ -1,4 +1,5 @@
 #include <Arduino_FreeRTOS.h>
+
 void TaskBlink( void *pvParameters );
 void TaskUART(void *pvParameters);
 void TaskENCODERRead(void *pvParameters);
@@ -13,6 +14,7 @@ typedef enum{
   EPRESSIONADO,
   ESOLTO,
 } eBTState;
+
 typedef enum{
   D,
   E,
@@ -21,9 +23,9 @@ typedef enum{
 
 typedef  struct{
   uint32_t u32_TempoAtual;
+  uint32_t u32_TempoAtual_CK;
   uint32_t u32_TempopressionadoPosSolto;
   uint32_t u32_Tempopressionado;
-  uint32_t u32_TempoAtual_CK;
   uint32_t u32_TempopressionadoPosSolto_CK;
   uint32_t u32_Tempopressionado_CK;
   eBTState eBT_estadoAtual;
@@ -49,25 +51,18 @@ void setup() {
   pinMode(ci_pinEnc_CLK,INPUT);
   pinMode(ci_pinEnc_CCLK,INPUT);
   pinMode(ci_pinEnc_BTN,INPUT);
-  stBTNENC0.eBT_estadoAtual_CK =P;
+
+  stBTNENC0.eBT_estadoAtual_CK = P;
+  stBTNENC0.eBT_estadoAnt_CK = P;
+  stBTNENC0.eBT_estadoAnt = ESOLTO;
+  stBTNENC0.eBT_estadoAtual = ESOLTO;
+  
   xTaskCreate(TaskBlink,"Blink",128,NULL,1,NULL);
 
-  xTaskCreate(
-    TaskUART,
-    "TaskUART",
-    128,
-    NULL,
-    1,
-    NULL
-  );
-  xTaskCreate(
-    TaskENCODERRead,
-    "TaskENCODERRead",
-    128,
-    NULL,
-    1,
-    NULL
-  );
+  xTaskCreate(TaskUART,"TaskUART",128,NULL,1,NULL);
+
+  xTaskCreate(TaskENCODERRead,"TaskENCODERRead",128,NULL,1,NULL);
+
 }
 
 void loop() {
@@ -94,7 +89,9 @@ void TaskUART(void *pvParameters){
     Serial.print("Estado: "+String(stBTNENC0.eBT_estadoAtual,HEX));
     Serial.print(", "+String(stBTNENC0.u32_Tempopressionado));
     Serial.print(", "+String(stBTNENC0.u32_TempopressionadoPosSolto));
-    Serial.print(", CK"+String(stBTNENC0.eBT_estadoAtual_CK,HEX));
+    Serial.print(", CK: "+String(stBTNENC0.eBT_estadoAtual_CK,HEX));
+    Serial.print(", "+String(stBTNENC0.u32_Tempopressionado_CK));
+    Serial.print(", "+String(stBTNENC0.u32_TempopressionadoPosSolto_CK));
     Serial.print("\n");
     vTaskDelay(1);
   }
@@ -116,9 +113,11 @@ void TaskENCODERRead(void *pvParameters){
       stBTNENC0.eBT_estadoAtual = ESOLTO;
     }
     if(stBTNENC0.eBT_estadoAtual_CK != P){
-      if()
-      stBTNENC0.u32_TempoAtual_CK = millis();
-      stBTNENC0.eBT_estadoAtual_CK;
+      stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK;
+      if((millis()>stBTNENC0.u32_TempoAtual_CK+500)){
+        stBTNENC0.u32_TempopressionadoPosSolto_CK = stBTNENC0.u32_Tempopressionado_CK;
+        stBTNENC0.eBT_estadoAtual_CK = P;
+      }
     }
   }
 }
@@ -135,12 +134,11 @@ ISR(PCINT0_vect){
     stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
     stBTNENC0.eBT_estadoAtual_CK = E;
   }
+
   if(!digitalRead(ci_pinEnc_CCLK) && digitalRead(ci_pinEnc_CLK) && stBTNENC0.eBT_estadoAtual_CK != P){
     stBTNENC0.u32_TempoAtual_CK = millis();
-    stBTNENC0.eBT_estadoAtual_CK = P;
   }
   if(!digitalRead(ci_pinEnc_CLK) && digitalRead(ci_pinEnc_CCLK) && stBTNENC0.eBT_estadoAtual_CK != P){
     stBTNENC0.u32_TempoAtual_CK = millis();
-    stBTNENC0.eBT_estadoAtual_CK = P;
   }
 }
