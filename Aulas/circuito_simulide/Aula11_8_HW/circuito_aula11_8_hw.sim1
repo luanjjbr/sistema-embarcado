@@ -1,31 +1,51 @@
 <circuit version="1.1.0-SR2" rev="260312" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
 
-<item itemtype="Subcircuit" CircId="Mega-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-250,-200" rotation="0" hflip="1" vflip="1" label="Arduino Mega" idLabPos="43.4536,-17.8585" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
-<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="../../codigos_aulas/Aula11_8_HW/build/arduino.avr.mega/Aula11_8_HW.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="true" SerialMon="1" />
+<item itemtype="Subcircuit" CircId="Mega-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-254,-200" rotation="0" hflip="1" vflip="1" label="Arduino Mega" idLabPos="43.4536,-17.8585" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="../../codigos_aulas/Aula11_8_HW/build/arduino.avr.mega/Aula11_8_HW.ino.hex" Auto_Load="true" saveEepr="true" MainMcu="true" SerialMon="-1" />
 </item>
 
-<item itemtype="Hd44780" CircId="Hd44780-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-100,-420" rotation="0" hflip="1" vflip="1" label="LCD 16x2" idLabPos="62,-89" labelrot="0" valLabPos="0,0" valLabRot="0" Rows="2" Cols="16" />
+<item itemtype="Hd44780" CircId="Hd44780-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-228,-356" rotation="0" hflip="1" vflip="1" label="LCD 16x2" idLabPos="62,-89" labelrot="0" valLabPos="0,0" valLabRot="0" Rows="2" Cols="16" />
 
 <item itemtype="KY040" CircId="KY040-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-450,-354" rotation="0" hflip="1" vflip="1" label="KY040" idLabPos="-14,-42" labelrot="0" valLabPos="0,0" valLabRot="0" Steps="4" />
 
-<item itemtype="Connector" uid="Connector-1" startpinid="KY040-1-clk" endpinid="Mega-1-10" pointList="-446,-318,-446,8,-240,8" />
+<item itemtype="Node" CircId="Node-16" mainComp="false" Pos="-180,-220" />
 
-<item itemtype="Connector" uid="Connector-2" startpinid="KY040-1-dt" endpinid="Mega-1-9" pointList="-454,-318,-454,0,-240,0" />
+<item itemtype="Node" CircId="Node-17" mainComp="false" Pos="-180,-272" />
 
-<item itemtype="Connector" uid="Connector-3" startpinid="KY040-1-sw" endpinid="Mega-1-8" pointList="-462,-318,-462,-8,-240,-8" />
+<item itemtype="Node" CircId="Node-24" mainComp="false" Pos="-168,-184" />
 
-<item itemtype="Connector" uid="Connector-4" startpinid="Hd44780-1-PinRS" endpinid="Mega-1-43" pointList="-84,-412,-84,-184,-152,-184" />
+<item itemtype="Node" CircId="Node-25" mainComp="false" Pos="-168,-296" />
 
-<item itemtype="Connector" uid="Connector-5" startpinid="Hd44780-1-PinRW" endpinid="Mega-1-41" pointList="-76,-412,-76,-184,-160,-184" />
+<item itemtype="Connector" uid="Connector-1" startpinid="KY040-1-clk" endpinid="Mega-1-10" pointList="-446,-318,-446,8,-244,8" />
 
-<item itemtype="Connector" uid="Connector-6" startpinid="Hd44780-1-PinEn" endpinid="Mega-1-39" pointList="-68,-412,-68,-184,-168,-184" />
+<item itemtype="Connector" uid="Connector-2" startpinid="KY040-1-dt" endpinid="Mega-1-9" pointList="-454,-318,-454,0,-244,0" />
 
-<item itemtype="Connector" uid="Connector-7" startpinid="Hd44780-1-dataPin4" endpinid="Mega-1-29" pointList="-28,-412,-28,-184,-208,-184" />
+<item itemtype="Connector" uid="Connector-3" startpinid="KY040-1-sw" endpinid="Mega-1-8" pointList="-462,-318,-462,-8,-244,-8" />
 
-<item itemtype="Connector" uid="Connector-8" startpinid="Hd44780-1-dataPin5" endpinid="Mega-1-27" pointList="-20,-412,-20,-184,-216,-184" />
+<item itemtype="Connector" uid="Connector-29" startpinid="Hd44780-1-dataPin7" endpinid="Mega-1-23" pointList="-132,-348,-132,-248,-236,-248,-236,-184" />
 
-<item itemtype="Connector" uid="Connector-9" startpinid="Hd44780-1-dataPin6" endpinid="Mega-1-25" pointList="-12,-412,-12,-184,-224,-184" />
+<item itemtype="Connector" uid="Connector-40" startpinid="Hd44780-1-dataPin6" endpinid="Mega-1-25" pointList="-140,-348,-140,-236,-228,-236,-228,-184" />
 
-<item itemtype="Connector" uid="Connector-10" startpinid="Hd44780-1-dataPin7" endpinid="Mega-1-23" pointList="-4,-412,-4,-184,-232,-184" />
+<item itemtype="Connector" uid="Connector-47" startpinid="Hd44780-1-dataPin5" endpinid="Mega-1-27" pointList="-148,-348,-148,-228,-220,-228,-220,-184" />
+
+<item itemtype="Connector" uid="Connector-65" startpinid="Hd44780-1-PinRS" endpinid="Mega-1-43" pointList="-212,-348,-212,-260,-156,-260,-156,-184" />
+
+<item itemtype="Connector" uid="Connector-66" startpinid="Node-16-1" endpinid="Node-17-1" pointList="-180,-220,-180,-272" />
+
+<item itemtype="Connector" uid="Connector-68" startpinid="Node-16-2" endpinid="Mega-1-29" pointList="-180,-220,-212,-220,-212,-184" />
+
+<item itemtype="Connector" uid="Connector-69" startpinid="Hd44780-1-dataPin4" endpinid="Node-17-0" pointList="-156,-348,-156,-272,-180,-272" />
+
+<item itemtype="Connector" uid="Connector-70" startpinid="Node-17-2" endpinid="Node-16-0" pointList="-180,-272,-180,-220" />
+
+<item itemtype="Connector" uid="Connector-85" startpinid="Hd44780-1-PinEn" endpinid="Mega-1-39" pointList="-196,-348,-196,-216,-172,-216,-172,-184" />
+
+<item itemtype="Connector" uid="Connector-94" startpinid="Node-24-1" endpinid="Node-25-1" pointList="-168,-184,-168,-296" />
+
+<item itemtype="Connector" uid="Connector-96" startpinid="Node-24-2" endpinid="Mega-1-41" pointList="-168,-184,-164,-184" />
+
+<item itemtype="Connector" uid="Connector-97" startpinid="Hd44780-1-PinRW" endpinid="Node-25-0" pointList="-204,-348,-204,-296,-168,-296" />
+
+<item itemtype="Connector" uid="Connector-98" startpinid="Node-25-2" endpinid="Node-24-0" pointList="-168,-296,-168,-184" />
 
 </circuit>

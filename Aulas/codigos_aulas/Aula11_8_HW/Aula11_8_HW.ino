@@ -163,7 +163,8 @@ void TaskENCODERRead(void *pvParameters) {
     // Retorna automaticamente ao estado Parado (P) após 250ms de inatividade
     if (stBTNENC0.eBT_estadoAtual_CK != P) {
       stBTNENC0.u32_Tempopressionado_CK = millis() - stBTNENC0.u32_TempoAtual_CK_1;
-      if (millis() > stBTNENC0.u32_TempoAtual_CK + (250 / portTICK_PERIOD_MS)) {
+      if (millis() > stBTNENC0.u32_TempoAtual_CK + (500 / portTICK_PERIOD_MS))
+      {
         stBTNENC0.u32_TempopressionadoPosSolto_CK = stBTNENC0.u32_Tempopressionado_CK;
         stBTNENC0.eBT_estadoAnt_CK = stBTNENC0.eBT_estadoAtual_CK;
         stBTNENC0.eBT_estadoAtual_CK = P;
@@ -224,3 +225,4 @@ void TaskDisplay(void *pvParameters) {
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
+

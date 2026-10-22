@@ -31,3 +31,4 @@ Este projeto implementa a leitura por interrupção na **borda de descida nativa
    - Para a direita: o LCD e a Serial mostram `DIR: DIREITA` e incrementam `VALOR`.
    - Para a esquerda: o LCD e a Serial mostram `DIR: ESQUERDA` e decrementam `VALOR`.
 6. Pressione o botão do encoder: o status `BT:` muda para `1` e `SW: PRESS`.
+
