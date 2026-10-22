@@ -35,7 +35,7 @@ typedef  struct{
   eCKState eBT_estadoAnt_CK;
 } stBTNENC;
 
-stBTNENC stBTNENC0;
+volatile stBTNENC stBTNENC0;
 
 void setup() {
   PCICR |=0b0000001;
@@ -60,7 +60,7 @@ void setup() {
   
   xTaskCreate(TaskBlink,"Blink",128,NULL,1,NULL);
 
-  xTaskCreate(TaskUART,"TaskUART",128,NULL,1,NULL);
+  xTaskCreate(TaskUART, "TaskUART", 256, NULL, 1, NULL);
 
   xTaskCreate(TaskENCODERRead,"TaskENCODERRead",128,NULL,1,NULL);
 
@@ -87,14 +87,20 @@ void TaskBlink(void *pvParameters){
 void TaskUART(void *pvParameters){
   for(;;){
     //int i_encoderPins=(!digitalRead(ci_pinEnc_CLK)<<2)|(!digitalRead(ci_pinEnc_CCLK)<<1)|(!digitalRead(ci_pinEnc_BTN)<<0);
-    Serial.print("Estado: "+String(stBTNENC0.eBT_estadoAtual));
-    Serial.print(", "+String(stBTNENC0.u32_Tempopressionado));
-    Serial.print(", "+String(stBTNENC0.u32_TempopressionadoPosSolto));
-    Serial.print(", CK: "+String(stBTNENC0.eBT_estadoAtual_CK));
-    Serial.print(", "+String(stBTNENC0.u32_Tempopressionado_CK));
-    Serial.print(", "+String(stBTNENC0.u32_TempopressionadoPosSolto_CK));
-    Serial.print("\n");
-    vTaskDelay(1);
+    Serial.print(F("Estado: "));
+    Serial.print(stBTNENC0.eBT_estadoAtual);
+    Serial.print(F(", "));
+    Serial.print(stBTNENC0.u32_Tempopressionado);
+    Serial.print(F(", "));
+    Serial.print(stBTNENC0.u32_TempopressionadoPosSolto);
+    Serial.print(F(", CK: "));
+    Serial.print(stBTNENC0.eBT_estadoAtual_CK);
+    Serial.print(F(", "));
+    Serial.print(stBTNENC0.u32_Tempopressionado_CK);
+    Serial.print(F(", "));
+    Serial.print(stBTNENC0.u32_TempopressionadoPosSolto_CK);
+    Serial.println();
+    vTaskDelay( 100 / portTICK_PERIOD_MS );
   }
 }
 void TaskENCODERRead(void *pvParameters){

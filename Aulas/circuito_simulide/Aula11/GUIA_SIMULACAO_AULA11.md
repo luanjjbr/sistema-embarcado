@@ -33,3 +33,4 @@ Este projeto simula exclusivamente o encoder rotativo incremental **KY-040** com
    ```
    - `Estado`: 0 (Pressionado) / 1 (Solto)
    - `CK`: 0 (Direita - D) / 1 (Esquerda - E) / 2 (Parado - P)
+
