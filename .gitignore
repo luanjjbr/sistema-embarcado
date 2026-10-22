@@ -24,6 +24,9 @@
 
 # --- Arduino IDE (1.x e 2.x) ---
 build/
+**/build/
+*.sim2
+*.sim3
 *.cpp.hex
 *.cpp.elf
 *.cpp.o

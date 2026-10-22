@@ -1,7 +1,7 @@
 <circuit version="" rev="2224" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
 
 <item itemtype="Subcircuit" CircId="Mega-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-250,-200" rotation="0" hflip="1" vflip="1" label="Arduino Mega" idLabPos="43.4536,-17.8585" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
-<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="Aula11_8.ino.hex" Auto_Load="true" saveEepr="true" SerialMon="1" />
+<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="../../codigos_aulas/Aula11_8/build/arduino.avr.mega/Aula11_8.ino.hex" Auto_Load="true" saveEepr="true" SerialMon="1" />
 </item>
 
 <item itemtype="Hd44780" CircId="Hd44780-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-100,-420" rotation="0" hflip="1" vflip="1" label="LCD 16x2" idLabPos="62,-89" labelrot="0" valLabPos="0,0" valLabRot="0" Rows="2" Cols="16" />

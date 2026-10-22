@@ -2,7 +2,7 @@
 
 <!-- Placa Arduino Mega 2560 -->
 <item itemtype="Subcircuit" CircId="Mega-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-200,-300" rotation="0" hflip="1" vflip="1" label="Arduino Mega" idLabPos="43.4536,-17.8585" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
-<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="Aula11.ino.hex" Auto_Load="true" saveEepr="true" SerialMon="1" />
+<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="../../codigos_aulas/Aula11/build/arduino.avr.mega/Aula11.ino.hex" Auto_Load="true" saveEepr="true" SerialMon="1" />
 </item>
 
 <!-- Módulo Encoder Rotativo KY-040 -->

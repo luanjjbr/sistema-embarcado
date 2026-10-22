@@ -16,13 +16,27 @@ Este projeto simula exclusivamente o encoder rotativo incremental **KY-040** com
 
 ---
 
-## ▶️ 2. Como Executar no SimulIDE
+## ⚙️ 2. Como Gerar o Firmware (.hex) no Arduino IDE
 
-1. No SimulIDE, abra o arquivo:
+Como o repositório Git armazena apenas código-fonte e esquemáticos (sem binários pré-compilados), você deve exportar o binário na hora:
+
+1. Abra o arquivo `Aulas/codigos_aulas/Aula11/Aula11.ino` no **Arduino IDE**.
+2. Certifique-se de que a placa selecionada é a **Arduino Mega or Mega 2560** (ATmega2560).
+3. Pressione `Ctrl + Alt + S` (**Sketch ➔ Exportar Binário Compilado**).
+4. O Arduino IDE gerará a pasta de build:
+   `Aulas/codigos_aulas/Aula11/build/arduino.avr.mega/Aula11.ino.hex`
+
+---
+
+## ▶️ 3. Como Executar no SimulIDE
+
+1. No SimulIDE, abra o arquivo esquemático:
    ```text
    Aulas/circuito_simulide/Aula11/circuito_aula11.sim1
    ```
-2. O firmware compilado `Aula11.ino.hex` já está vinculado automaticamente com `Auto_Load="true"`.
+2. O circuito já está pré-configurado com `Auto_Load="true"` apontando diretamente para o caminho relativo:
+   `../../codigos_aulas/Aula11/build/arduino.avr.mega/Aula11.ino.hex`
+   *(Caso queira carregar manualmente, basta clicar com o botão direito na placa Mega ➔ **Load Firmware** e selecionar o `.hex` na pasta `build`)*.
 3. Clique no botão de **Power** (vermelho/verde) no topo para ligar o circuito.
 4. **Abra o Monitor Serial:**
    - Clique com o botão direito na placa Arduino Mega -> clique em **Open Serial Monitor**.

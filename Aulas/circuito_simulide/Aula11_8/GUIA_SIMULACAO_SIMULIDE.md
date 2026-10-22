@@ -50,7 +50,8 @@ O SimulIDE executa o código de máquina diretamente no microcontrolador emulado
    Ctrl + Alt + S
    ```
    *(Ou acesse pelo menu: **Sketch -> Exportar Binário Compilado**)*.
-5. O Arduino IDE compilará o sketch e criará o arquivo binário com final `.hex` (ex.: `Aula11_8.ino.hex` ou `Aula11_8.ino.with_bootloader.hex`) na pasta do sketch ou na pasta de build.
+5. O Arduino IDE compilará o sketch e criará o arquivo `.hex` dentro da pasta de build:
+   `Aulas/codigos_aulas/Aula11_8/build/arduino.avr.mega/Aula11_8.ino.hex`
 
 ---
 
@@ -66,9 +67,9 @@ O SimulIDE executa o código de máquina diretamente no microcontrolador emulado
      ```
    - Selecione o arquivo `circuito_aula11_8.simu` (ou `circuito_aula11_8.sim1` se estiver em versões 1.0+).
 3. **Carregue o Firmware no Arduino Mega**:
-   - Clique com o **botão direito do mouse** em cima da placa **Arduino Mega** (ou do microcontrolador ATmega2560).
-   - No menu de contexto que abrir, clique em **Load Firmware**.
-   - Selecione o arquivo `.hex` exportado no Passo 2.
+   - O arquivo esquemático já está configurado com `Auto_Load="true"` apontando para:
+     `../../codigos_aulas/Aula11_8/build/arduino.avr.mega/Aula11_8.ino.hex`
+   - *(Caso prefira carregar manualmente, clique com o botão direito na placa Mega -> **Load Firmware** e selecione o `.hex` na pasta `build`)*.
 4. **Ligue o Circuito**:
    - Clique no botão vermelho de **Power** (ícone de liga/desliga no topo do SimulIDE). Ele ficará verde indicando que a simulação está rodando em tempo real.
 5. **Abra o Monitor Serial**:
