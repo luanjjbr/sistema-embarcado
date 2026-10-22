@@ -1,0 +1,24 @@
+<circuit version="" rev="2224" stepSize="1000000" stepsPS="1000000" NLsteps="100000" reaStep="1000000" animate="0" >
+
+<item itemtype="Subcircuit" CircId="Mega-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-250,-200" rotation="0" hflip="1" vflip="1" label="Arduino Mega" idLabPos="43.4536,-17.8585" labelrot="0" valLabPos="0,0" valLabRot="0" Logic_Symbol="false">
+<mainCompProps MainCompId="mega2560-63" Frequency="16 MHz" Program="../../codigos_aulas/Aula11_8_IA/build/arduino.avr.mega/Aula11_8_IA.ino.hex" Auto_Load="true" saveEepr="true" SerialMon="1" />
+</item>
+
+<item itemtype="Hd44780" CircId="Hd44780-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-100,-420" rotation="0" hflip="1" vflip="1" label="LCD 16x2" idLabPos="62,-89" labelrot="0" valLabPos="0,0" valLabRot="0" Rows="2" Cols="16" />
+
+<item itemtype="KY040" CircId="KY040-1" mainComp="false" Show_id="true" Show_Val="false" Pos="-450,-350" rotation="0" hflip="1" vflip="1" label="KY040" idLabPos="-14,-42" labelrot="0" valLabPos="0,0" valLabRot="0" Steps="20" />
+
+<item itemtype="Connector" uid="Connector-1" startpinid="KY040-1-clk" endpinid="Mega-1-11" pointList="-446,-314,-446,-150,-242,-150" />
+<item itemtype="Connector" uid="Connector-2" startpinid="KY040-1-dt" endpinid="Mega-1-12" pointList="-454,-314,-454,-142,-242,-142" />
+<item itemtype="Connector" uid="Connector-3" startpinid="KY040-1-sw" endpinid="Mega-1-10" pointList="-462,-314,-462,-158,-242,-158" />
+
+<item itemtype="Connector" uid="Connector-4" startpinid="Hd44780-1-PinRS" endpinid="Mega-1-43" pointList="-84,-412,-84,-280,-154,-280" />
+<item itemtype="Connector" uid="Connector-5" startpinid="Hd44780-1-PinRW" endpinid="Mega-1-41" pointList="-76,-412,-76,-272,-162,-272" />
+<item itemtype="Connector" uid="Connector-6" startpinid="Hd44780-1-PinEn" endpinid="Mega-1-39" pointList="-68,-412,-68,-264,-170,-264" />
+
+<item itemtype="Connector" uid="Connector-7" startpinid="Hd44780-1-dataPin4" endpinid="Mega-1-29" pointList="-28,-412,-28,-256,-210,-256" />
+<item itemtype="Connector" uid="Connector-8" startpinid="Hd44780-1-dataPin5" endpinid="Mega-1-27" pointList="-20,-412,-20,-248,-218,-248" />
+<item itemtype="Connector" uid="Connector-9" startpinid="Hd44780-1-dataPin6" endpinid="Mega-1-25" pointList="-12,-412,-12,-240,-226,-240" />
+<item itemtype="Connector" uid="Connector-10" startpinid="Hd44780-1-dataPin7" endpinid="Mega-1-23" pointList="-4,-412,-4,-232,-234,-232" />
+
+</circuit>
