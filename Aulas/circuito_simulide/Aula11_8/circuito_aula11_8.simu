@@ -1,0 +1,18 @@
+<circuit version="1.1.0" stepSize="1000000" stepsPS="1000000" animate="0">
+    <!-- Microcontrolador Arduino Mega 2560 -->
+    <item itemtype="Subcircuit" CircId="ArduinoMega-1" subcircuitFile="Arduino Mega.sim1" Pos="0,0" label="Arduino Mega 2560" mainComp="true" />
+
+    <!-- Display Alfanumérico LCD 16x2 HD44780 -->
+    <item itemtype="Hd44780" CircId="LCD1" Pos="340,-100" rows="2" cols="16" label="LCD 16x2 HD44780" />
+
+    <!-- Encoder Rotativo Incremental KY-040 -->
+    <item itemtype="Encoder" CircId="Encoder1" Pos="-280,-40" label="Encoder KY-040" steps="20" />
+
+    <!-- Botão de Clique Central do Encoder (SW) -->
+    <item itemtype="Push" CircId="Push1" Pos="-280,60" label="SW (Clique)" />
+
+    <!-- Fontes de Referência e Alimentação -->
+    <item itemtype="Ground" CircId="GND-1" Pos="-340,120" label="GND" />
+    <item itemtype="VoltSource" CircId="VCC-1" Pos="-340,-120" label="+5V" Voltage="5" />
+</circuit>
+
