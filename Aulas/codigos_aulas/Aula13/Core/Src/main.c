@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +43,8 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+static uint8_t rxBuf[64];
+static volatile uint16_t rxLen = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,24 +90,32 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  setvbuf(stdout, NULL, _IONBF, 0); /* printf sai na hora, sem esperar '\n' */
+  printf("Aula13 pronta (USART2 @ 115200)\r\n");
+  HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxBuf, sizeof rxBuf);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint32_t li_tempoAtual = 0;
-  uint8_t TXT[16];
   while (1)
   {
 	  if (HAL_GetTick() - li_tempoAtual >= 500)
 	      {
 	        li_tempoAtual = HAL_GetTick();
 	        HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-	        // HAL_Delay(500);
-	        // printf("oi");
 	      }
+
+	  /* Eco: devolve ao Supervisório o que chegou e rearma a recepção */
+	  if (rxLen > 0)
+	  {
+	    printf("Recebi %u bytes: ", (unsigned)rxLen);
+	    HAL_UART_Transmit(&huart2, rxBuf, rxLen, 100);
+	    rxLen = 0;
+	    HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxBuf, sizeof rxBuf);
+	  }
     /* USER CODE END WHILE */
-	  HAL_UART_Receive_IT(&huart2, TXT, 5);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -232,9 +241,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/* Redireciona o printf (stdout) para a USART2 */
+int _write(int file, char *ptr, int len)
+{
+	(void)file;
+	HAL_UART_Transmit(&huart2, (uint8_t *)ptr, (uint16_t)len, HAL_MAX_DELAY);
+	return len;
+}
+
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
 	if(huart == &huart2){
-		HAL_GPIO_TogglePin(GPIOA, LD2_Pin);
+		rxLen = Size;
 	}
 }
 /* USER CODE END 4 */
