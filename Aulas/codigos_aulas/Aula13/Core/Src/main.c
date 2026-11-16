@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
+#include <stdio.h>    /* printf */
+#include <strings.h>  /* strcasecmp: compara o texto com "help" sem ligar para maiúsculas */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define RX_TAM 64     /* tamanho máximo da linha (63 caracteres + '\0') */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,8 +44,10 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-static uint8_t rxBuf[64];
-static volatile uint16_t rxLen = 0;
+uint8_t ui8_rxByte;                    /* a interrupção recebe 1 byte por vez aqui */
+uint8_t ui8_rxBuf[RX_TAM];             /* os bytes vão sendo juntados aqui até formar a linha */
+volatile uint16_t ui16_rxIdx = 0;      /* posição do próximo byte no buffer (volatile: muda na interrupção) */
+volatile uint8_t ui8_linhaPronta = 0;  /* 1 = chegou \r ou \n, a linha está pronta para tratar */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -52,7 +55,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void trataLinhaRecebida(void);  /* protótipo: a função fica lá embaixo, no USER CODE 4 */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -90,9 +93,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  setvbuf(stdout, NULL, _IONBF, 0); /* printf sai na hora, sem esperar '\n' */
-  printf("Aula13 pronta (USART2 @ 115200)\r\n");
-  HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxBuf, sizeof rxBuf);
+  setvbuf(stdout, NULL, _IONBF, 0);              /* printf sai na hora, sem esperar o buffer encher */
+  printf("Aula13 pronta (USART2 @ 115200)\r\n"); /* mensagem de partida no Supervisório */
+  HAL_UART_Receive_IT(&huart2, &ui8_rxByte, 1);  /* liga a recepção: avisa por interrupção a cada 1 byte */
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,15 +107,15 @@ int main(void)
 	      {
 	        li_tempoAtual = HAL_GetTick();
 	        HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	        // HAL_Delay(500);
+	        //printf("oi");
 	      }
 
-	  /* Eco: devolve ao Supervisório o que chegou e rearma a recepção */
-	  if (rxLen > 0)
+	  /* A interrupção só junta os bytes; quem responde é o loop,
+	     porque printf é lento e não pode rodar dentro da interrupção */
+	  if (ui8_linhaPronta)
 	  {
-	    printf("Recebi %u bytes: ", (unsigned)rxLen);
-	    HAL_UART_Transmit(&huart2, rxBuf, rxLen, 100);
-	    rxLen = 0;
-	    HAL_UARTEx_ReceiveToIdle_IT(&huart2, rxBuf, sizeof rxBuf);
+	    trataLinhaRecebida();
 	  }
     /* USER CODE END WHILE */
 
@@ -241,7 +244,33 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/* Redireciona o printf (stdout) para a USART2 */
+
+/* Chamada pela HAL toda vez que 1 byte termina de chegar (efeito do HAL_UART_Receive_IT) */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart2){                              /* garante que veio da USART2 */
+		if(!ui8_linhaPronta){                          /* enquanto a linha anterior não for tratada, descarta */
+			if(ui8_rxByte == '\r' || ui8_rxByte == '\n'){  /* fim de linha */
+				if(ui16_rxIdx > 0){                    /* ignora linha vazia (o \n que vem depois do \r) */
+					ui8_rxBuf[ui16_rxIdx] = '\0';      /* fecha a string para o strcasecmp/printf */
+					ui8_linhaPronta = 1;               /* avisa o loop */
+				}
+			} else if(ui16_rxIdx < RX_TAM - 1){        /* ainda cabe (reserva 1 posição para o '\0') */
+				ui8_rxBuf[ui16_rxIdx++] = ui8_rxByte;  /* guarda o byte e avança a posição */
+			}                                          /* se não couber, o byte é perdido (linha truncada) */
+		}
+		HAL_UART_Receive_IT(&huart2, &ui8_rxByte, 1);  /* rearma: sem isso só recebe 1 byte e para */
+	}
+}
+
+/* Chamada pela HAL quando dá erro na UART (ex.: overrun, byte chegou antes de ler o anterior).
+   A HAL cancela a recepção no erro, então é preciso rearmar, senão a placa fica "surda" */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
+	if(huart == &huart2){
+		HAL_UART_Receive_IT(&huart2, &ui8_rxByte, 1);
+	}
+}
+
+/* Redireciona o printf para a USART2: tudo que o printf escreve sai pela serial */
 int _write(int file, char *ptr, int len)
 {
 	(void)file;
@@ -249,10 +278,15 @@ int _write(int file, char *ptr, int len)
 	return len;
 }
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
-	if(huart == &huart2){
-		rxLen = Size;
+/* Antiga c(): decide o que responder para a linha recebida. Roda no loop, nunca na interrupção */
+static void trataLinhaRecebida(void){
+	if(strcasecmp((char *)ui8_rxBuf, "help") == 0){    /* retorna 0 quando iguais; aceita help, HELP, Help... */
+		printf("Comandos:\r\n  help - mostra esta lista\r\n  <texto> - devolve o texto\r\n");
+	} else {
+		printf("%s\r\n", (char *)ui8_rxBuf);           /* não é comando: eco do que chegou */
 	}
+	ui16_rxIdx = 0;        /* zera a posição primeiro... */
+	ui8_linhaPronta = 0;   /* ...e só depois libera a interrupção para montar a próxima linha */
 }
 /* USER CODE END 4 */
 
