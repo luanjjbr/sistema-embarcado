@@ -41,7 +41,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+
 UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_tx;
 
 /* USER CODE BEGIN PV */
 uint8_t ui8_rxByte;                    /* a interrupção recebe 1 byte por vez aqui */
@@ -53,7 +56,9 @@ volatile uint8_t ui8_linhaPronta = 0;  /* 1 = chegou \r ou \n, a linha está pro
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 static void trataLinhaRecebida(void);  /* protótipo: a função fica lá embaixo, no USER CODE 4 */
 /* USER CODE END PFP */
@@ -91,7 +96,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   setvbuf(stdout, NULL, _IONBF, 0);              /* printf sai na hora, sem esperar o buffer encher */
   printf("Aula13 pronta (USART2 @ 115200)\r\n"); /* mensagem de partida no Supervisório */
@@ -101,6 +108,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint32_t li_tempoAtual = 0;
+  uint32_t ADC_tempoAtual = 0;
   while (1)
   {
 	  if (HAL_GetTick() - li_tempoAtual >= 500)
@@ -117,13 +125,45 @@ int main(void)
 	  {
 	    trataLinhaRecebida();
 	  }
+		  if (HAL_GetTick() - ADC_tempoAtual >= 1000)
+		  {
+		      ADC_tempoAtual = HAL_GetTick();
+
+		      uint16_t R1ADC = 0, R2ADC = 0,R3ADC = 0;
+		      HAL_ADC_Start(&hadc1);
+		      if (HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK)
+		          R1ADC = HAL_ADC_GetValue(&hadc1);            /* rank 1: sensor de temperatura */
+		      if (HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK)
+		          R2ADC = HAL_ADC_GetValue(&hadc1);          /* rank 2: VREFINT */
+		      if (HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK)
+		    	  R3ADC = HAL_ADC_GetValue(&hadc1); /* rank 2: canal 0 */
+		      if (HAL_ADC_PollForConversion(&hadc1, 100) == HAL_OK)
+		    	  R3ADC = HAL_ADC_GetValue(&hadc1);/* rank 2: canal 0  */
+
+		      if (R2ADC == 0)                                  /* poll falhou: evita dividir por zero */
+		      {
+		          printf("[%8lu] erro na leitura do ADC\r\n", (unsigned long)ADC_tempoAtual);
+		      }
+		      else
+		      {
+		          /* VREFINT lido + valor de calibração de fábrica -> VDDA real em mV */
+		          uint32_t vdda_mV = __LL_ADC_CALC_VREFANALOG_VOLTAGE(R2ADC, LL_ADC_RESOLUTION_12B);
+
+		          /* leitura do sensor + VDDA + calibração de fábrica -> °C (graus inteiros) */
+		          int32_t temp_C = __LL_ADC_CALC_TEMPERATURE(vdda_mV, R1ADC, LL_ADC_RESOLUTION_12B);
+
+		          printf("[%8lu] temp: raw=%4u -> %ld C | vrefint: raw=%4u -> VDDA=%lu mV\r\n",
+		                 (unsigned long)ADC_tempoAtual,
+		                 R1ADC, (long)temp_C,
+		                 R2ADC, (unsigned long)vdda_mV);
+		      }
+		  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
-
 
 /**
   * @brief System Clock Configuration
@@ -172,6 +212,85 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.ScanConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_VREFINT;
+  sConfig.Rank = 2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = 3;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Rank = 4;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -201,6 +320,22 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Stream6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream6_IRQn, 14, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream6_IRQn);
 
 }
 
@@ -275,6 +410,7 @@ int _write(int file, char *ptr, int len)
 {
 	(void)file;
 	HAL_UART_Transmit(&huart2, (uint8_t *)ptr, (uint16_t)len, HAL_MAX_DELAY);
+	//HAL_UART_Transmit_DMA(&huart2, (uint8_t *)ptr, (uint16_t)len);
 	return len;
 }
 
